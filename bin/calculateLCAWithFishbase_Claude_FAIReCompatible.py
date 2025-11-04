@@ -355,7 +355,7 @@ class DatabaseManager:
 
             genera_to_lineage = (
                 worms_df.assign(Domain="Unknown")
-                .worms_df.groupby('Genus')[
+                .groupby('Genus')[
                     ['Family', 'Order', 'Class', 'Phylum', 'Domain']
                 ]
                 .first()
@@ -454,18 +454,12 @@ class TaxonomicAssigner:
         # Fishbase comes first,
         genus, species, lineage = self._search_fishbase(line_elements)
         if genus:
-            # Try to get the domain/phylum info from worms
-            genus_worms, species_worms, lineage_worms = self._search_worms(
-                line_elements
-            )
-            if genus_worms:
-                # add worms phylum and domain
-                lineage.domain = lineage_worms.domain
-                lineage.phylum = lineage_worms.phylum
-                return genus, species, 'fishbase', lineage
+            # We want Teleostei to have the Actinopteri label
+            if (lineage.class_name == 'Teleostei'):
+                lineage.class_name = 'Actinopteri'
 
             # Try to get the domain/phylum info from ncbi
-            elif taxid:
+            if taxid:
                 lineage_ncbi = self._search_ncbi(taxid)
                 if lineage_ncbi:
                     lineage.domain = lineage_ncbi.domain
@@ -480,7 +474,18 @@ class TaxonomicAssigner:
         # then WoRMs,
         genus, species, lineage = self._search_worms(line_elements)
         if genus:
-            return genus, species, 'worms', lineage
+            # Try to get the domain/phylum info from ncbi
+            if taxid:
+                lineage_ncbi = self._search_ncbi(taxid)
+                if lineage_ncbi:
+                    lineage.domain = lineage_ncbi.domain
+                    lineage.phylum = lineage_ncbi.phylum
+                    return genus, species, 'worms', lineage
+                else:
+                    return genus, species, 'worms', lineage
+
+            else:
+                return genus, species, 'worms', lineage
 
         # and lastly, NCBI Taxonomy via the taxid
         if taxid:
@@ -598,7 +603,6 @@ class LCACalculator:
             ]
 
         sorted_entries = entries # They should already be sorted
-
 
         top_percentage = sorted_entries[0][0]
         top_coverage = sorted_entries[0][2]

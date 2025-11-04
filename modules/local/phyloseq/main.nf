@@ -122,15 +122,12 @@ process PHYLOSEQ {
     # Add LCA column
     levels <- c("species", "genus", "family", "order", "class", "phylum", "domain")
     for (row in 1:nrow(taxa)) {
-        LCA      <- NA
+        LCA      <- "NA"
         level_ID <- 1
-        while(LCA == "dropped" | LCA == "" | is.na(LCA)) {
+        while((LCA == "dropped" | LCA == "" | LCA == "NA") and level_ID < 8) {
             LCA      <- taxa[row, levels[level_ID]]
             level_ID <- level_ID + 1
 
-            if (level_ID == 9) {
-                LCA <- "NA"
-            }
         }
         taxa[row, "LCA"] <- LCA
     }

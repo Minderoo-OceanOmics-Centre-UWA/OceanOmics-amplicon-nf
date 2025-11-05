@@ -124,7 +124,7 @@ process PHYLOSEQ {
     for (row in 1:nrow(taxa)) {
         LCA      <- "NA"
         level_ID <- 1
-        while((LCA == "dropped" | LCA == "" | LCA == "NA") and level_ID < 8) {
+        while((LCA == "dropped" | LCA == "" | LCA == "NA" | is.na(LCA)) & (level_ID < 8)) {
             LCA      <- taxa[row, levels[level_ID]]
             level_ID <- level_ID + 1
 

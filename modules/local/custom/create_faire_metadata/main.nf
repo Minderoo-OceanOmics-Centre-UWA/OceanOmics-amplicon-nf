@@ -50,7 +50,7 @@ process CREATE_FAIRE_METADATA {
     upper_prefix <- strsplit(upper_prefix, split = "_")[[1]][1]
     all_ids <- full_taxa_table[, upper_prefix]
 
-    subset_ids <- rownames(taxa_raw)
+    subset_ids <- unique(taxa_raw[, "seq_id"])
     for (id in all_ids) {
         if (! id %in% subset_ids) {
             new_row <- data.frame(

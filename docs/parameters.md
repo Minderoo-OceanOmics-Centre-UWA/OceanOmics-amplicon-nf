@@ -11,6 +11,7 @@ All the parameters in the pipeline can be set in a config file, or they can be s
 - [outdir](#outdir) - Directory where output files will be published
 - [binddir](#bind_dir) - Directory to bind to the Docker images (e.g., /scratch)
 - [dbfiles](#dbfiles) - List of Blast database files in quote marks (e.g., "path/to/db/\*"). In a config file, you can provide the path to files from multiple databases.
+- [dbfiles2](#dbfiles2) - List of Blast database files in quote marks (e.g., "path/to/db/\*"). In a config file, you can provide the path to files from multiple databases. This is used when the user also selects `--blast_twice`.
 - [filter_table](#filter_table) - Optional .csv file to filter out unwanted taxa. First column should be called `level`, and second column should be called `name`. For example, one row might have domain in the `level` column and Bacteria in the `name` column.
 - [fw_primer](#fw_primer) - Your forward primer. Can be a semi-colon seperated list of primers.
 - [rv_primer](#rv_primer) - Your reverse primer. Can be a semi-colon seperated list of primers.
@@ -68,6 +69,7 @@ All the parameters in the pipeline can be set in a config file, or they can be s
 - [blast_best_hit_overhang](#blast_best_hit_overhang)
 - [blast_qcov](#blast_qcov) - default = 90
 - [blast_max_tar_seq](#blast_max_tar_seq) - default = 999999
+- [blast_twice](#blast_twice) - default - false; only useful if you use `--dbfiles2` to provide a second blast database.
 
 ### LULU parameters
 

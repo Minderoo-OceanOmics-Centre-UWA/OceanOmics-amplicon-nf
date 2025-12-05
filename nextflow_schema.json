@@ -28,6 +28,12 @@
                     "help_text": "A custom database will be provided when using a test profile, but you need to build or download a database when not using a test profile. See [makeblastdb](https://www.ncbi.nlm.nih.gov/books/NBK569841/).",
                     "fa_icon": "fas fa-file-import"
                 },
+                "dbfiles2": {
+                    "format": "file-path",
+                    "description": "Path to blast database files (use wildcard to select all files in db directory). Make sure to wrap path in quotes.",
+                    "help_text": "A custom database will be provided when using a test profile, but you need to build or download a database when not using a test profile. See [makeblastdb](https://www.ncbi.nlm.nih.gov/books/NBK569841/).",
+                    "fa_icon": "fas fa-file-import"
+                },
                 "raw_data": {
                     "format": "file-path",
                     "description": "Path to raw data file/s (use {1,2} or {R1,R2} in path to select paired end raw data). Make sure to wrap path in quotes.",
@@ -130,6 +136,16 @@
                     "description": "",
                     "minimum": 0,
                     "default": 1
+                },
+                "obi3_min_len": {
+                    "type": "integer",
+                    "description": "",
+                    "minimum": 0,
+                    "default": 8
+                },
+                "obi3_demux": {
+                    "type": "boolean",
+                    "default": false
                 },
                 "demux_udi": {
                     "type": "boolean",
@@ -256,6 +272,10 @@
                     "description": "",
                     "minimum": 1,
                     "default": 10
+                },
+                "blast_twice": {
+                    "type": "boolean",
+                    "description": ""
                 },
                 "lulu_min_match": {
                     "type": "integer",

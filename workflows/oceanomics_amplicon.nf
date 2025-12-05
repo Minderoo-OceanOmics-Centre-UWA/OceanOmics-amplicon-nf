@@ -118,6 +118,9 @@ ch_pngs = Channel.empty()
 ch_raw_data = Channel.empty()
 ch_ulimit = Channel.empty()
 ch_db = Channel.fromPath(params.dbfiles).collect()
+if (params.blast_twice) {
+    ch_db2 = Channel.fromPath(params.dbfiles2).collect()
+}
 
 if (params.filter_table) {
     ch_filter = file(params.filter_table, checkIfExists: true)
@@ -152,6 +155,7 @@ include { CREATE_FAIRE_METADATA_NOTAXA       } from '../modules/local/custom/cre
 include { RENAME_OTURAW                      } from '../modules/local/custom/rename_oturaw/main.nf'
 include { REFORMAT_OTUFINAL                  } from '../modules/local/custom/reformat_otufinal/main.nf'
 include { BLAST_BLASTN                       } from '../modules/local/blast/blastn/main.nf'
+include { BLAST_BLASTN as BLAST_BLASTN2      } from '../modules/local/blast/blastn/main.nf'
 include { CONCAT_BLASTN_RESULTS              } from '../modules/local/custom/concat_blastn_results/main.nf'
 include { CURATE_BLASTN_RESULTS              } from '../modules/local/custom/curate_blastn_results/main.nf'
 include { LCA                                } from '../modules/local/lca/main.nf'
@@ -417,9 +421,17 @@ workflow OCEANOMICS_AMPLICON {
             ch_curated_table = ch_curated_table
                 .map {
                     prefix, table ->
-                    prefix = prefix + "_lulucurated"
+                    prefix = prefix + "_blast_lulucurated"
                     return [ prefix, table ]
                 }
+                .mix(
+                    ch_curated_table
+                    .map {
+                        prefix, table ->
+                        prefix = prefix + "_blast2_lulucurated"
+                        return [ prefix, table ]
+                    }
+                )
             ch_fasta = ch_curated_fasta
                 .map {
                     prefix, fasta ->
@@ -430,13 +442,49 @@ workflow OCEANOMICS_AMPLICON {
             ch_curated_table = ch_curated_table
                 .map {
                     prefix, table ->
-                    prefix = prefix + "_lulucurated"
+                    prefix = prefix + "_blast_lulucurated"
                     return [ prefix, table ]
                 }
-                .mix(ch_lca_input_table)
+                .mix(
+                    ch_curated_table
+                    .map {
+                        prefix, table ->
+                        prefix = prefix + "_blast2_lulucurated"
+                        return [ prefix, table ]
+                    }
+                )
+                .mix(
+                    ch_lca_input_table
+                    .map {
+                        prefix, table ->
+                        prefix = prefix + "_blast"
+                        return [ prefix, table ]
+                    }
+                )
+                .mix(
+                    ch_lca_input_table
+                    .map {
+                        prefix, table ->
+                        prefix = prefix + "_blast2"
+                        return [ prefix, table ]
+                    }
+                )
         }
     } else {
         ch_curated_table = ch_lca_input_table
+            .map {
+                prefix, table ->
+                prefix = prefix + "_blast"
+                return [ prefix, table ]
+            }
+            .mix(
+                ch_lca_input_table
+                .map {
+                    prefix, table ->
+                    prefix = prefix + "_blast2"
+                    return [ prefix, table ]
+                }
+            )
     }
 
     if (!params.start_from_lca) {
@@ -455,8 +503,101 @@ workflow OCEANOMICS_AMPLICON {
             )
             ch_versions = ch_versions.mix(BLAST_BLASTN.out.versions.first())
 
+            ch_preconcat_blast = BLAST_BLASTN.out.txt.groupTuple()
+                .map {
+                    prefix, table ->
+                    prefix = prefix + "_blast"
+                    return [ prefix, table ]
+                }
+            ch_curated_fasta = ch_curated_fasta
+                .map {
+                    prefix, fasta ->
+                    prefix = prefix + "_blast"
+                    return [ prefix, fasta ]
+                }
+            ch_fasta = ch_fasta
+                .map {
+                    prefix, fasta ->
+                    prefix = prefix + "_blast"
+                    return [ prefix, fasta ]
+                }
+            //ch_curated_table = ch_curated_table
+            //    .map {
+            //        prefix, table ->
+            //        prefix = prefix + "_blast"
+            //        return [ prefix, table ]
+            //    }
+            ch_otu_table = ch_otu_table
+                .map {
+                    prefix, table ->
+                    prefix = prefix + "_blast"
+                    return [ prefix, table ]
+                }
+            ch_lca_input_table = ch_lca_input_table
+                .map {
+                    prefix, table ->
+                    prefix = prefix + "_blast"
+                    return [ prefix, table ]
+                }
+
+            if (params.blast_twice) {
+                BLAST_BLASTN2 (
+                    ch_fasta_split,
+                    ch_db2
+                )
+
+                ch_preconcat_blast = ch_preconcat_blast.mix(
+                    BLAST_BLASTN2.out.txt.groupTuple()
+                    .map {
+                        prefix, table ->
+                        prefix = prefix + "_blast2"
+                        return [ prefix, table ]
+                    }
+                )
+                ch_curated_fasta = ch_curated_fasta.mix(
+                    ch_curated_fasta
+                    .map {
+                        prefix, fasta ->
+                        prefix = prefix + "2"
+                        return [ prefix, fasta ]
+                    }
+                )
+                ch_fasta = ch_fasta.mix(
+                    ch_fasta
+                    .map {
+                        prefix, fasta ->
+                        prefix = prefix + "2"
+                        return [ prefix, fasta ]
+                    }
+                )
+                //ch_curated_table = ch_curated_table.mix(
+                //    ch_curated_table
+                //    .map {
+                //        prefix, table ->
+                //        prefix = prefix + "_blast2"
+                //        return [ prefix, table ]
+                //    }
+                //)
+                ch_otu_table = ch_otu_table.mix(
+                    ch_otu_table
+                    .map {
+                        prefix, table ->
+                        prefix = prefix + "2"
+                        return [ prefix, table ]
+                    }
+                )
+                ch_lca_input_table = ch_lca_input_table.mix(
+                    ch_lca_input_table
+                    .map {
+                        prefix, table ->
+                        prefix = prefix + "2"
+                        return [ prefix, table ]
+                    }
+                )
+            }
+
             CONCAT_BLASTN_RESULTS (
-                BLAST_BLASTN.out.txt.groupTuple()
+                ch_preconcat_blast
             )
         }
 
@@ -644,15 +785,16 @@ workflow OCEANOMICS_AMPLICON {
         REFORMAT_OTUFINAL (
             ch_filtered_table
         )
+
         //ch_experimentrun_meta_input =
         ADD_EXPERIMENTRUNMETADATA (
             ch_phyloseq,
-            ch_metadata,
-            ch_input,
-            PREFILTERING_STATS.out.stats,
+            ch_metadata, //
+            ch_input.collect(), //
+            PREFILTERING_STATS.out.stats.collect(), //
             params.assay,
             //INPUTFILE_INFO.out.csv.map{ it = it[1] }.collect()
-            CONCATFILE_INFO.out.csv
+            CONCATFILE_INFO.out.csv.collect() //
         )
 
         if (! params.skip_classification) {

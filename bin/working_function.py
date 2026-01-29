@@ -46,8 +46,8 @@ def create_taxaRaw(acc, db):
                 author = split_line[1].split(")] [")[0]
             except IndexError:
                 author = "not applicable: authorship info missing"
-            if x[6] != '':
-                split_species = x[6].split(" ")
+            if x[5] != '':
+                split_species = x[5].split(" ")
                 if len(split_species) == 1:
                     specificEpithet = split_species[0]
                 else:
@@ -56,18 +56,15 @@ def create_taxaRaw(acc, db):
                     else:
                         specificEpithet = split_species[1]
             else:
-                specificEpithet = x[5]
+                specificEpithet = x[4]
 
             if specificEpithet == "dropped":
-                if x[5] == "dropped":
-                    if x[4] == "dropped":
-                        if x[3] == "dropped":
-                            if x[2] == "dropped":
-                                if x[1] == "dropped":
-                                    if x[0] == "dropped":
-                                        level = "not applicable: taxonomy rank info missing"
-                                    else:
-                                        level = "kingdom"
+                if x[4] == "dropped":
+                    if x[3] == "dropped":
+                        if x[2] == "dropped":
+                            if x[1] == "dropped":
+                                if x[0] == "dropped":
+                                    level = "not applicable: taxonomy rank info missing"
                                 else:
                                     level = "phylum"
                             else:
@@ -82,24 +79,24 @@ def create_taxaRaw(acc, db):
                 level = "species"
 
             f.write(
-                str(x[7]) + "\t" +
+                str(x[6]) + "\t" +
                 str(x[-1]) + "\t" +
+                "NA" + "\t" +
                 str(x[0]) + "\t" +
                 str(x[1]) + "\t" +
                 str(x[2]) + "\t" +
                 str(x[3]) + "\t" +
                 str(x[4]) + "\t" +
-                str(x[5]) + "\t" +
                 str(specificEpithet) + "\t" +
-                str(x[6]) + "\t" +
+                str(x[5]) + "\t" +
                 author + "\t" +
                 level + "\t" +
-                str(x[9]) + "\t" +
-                db + "\t" +
-                str(x[-6]) + "\t" +
                 str(x[8]) + "\t" +
                 db + "\t" +
-                str(x[13]) + "\t" +
+                str(x[-6]) + "\t" +
+                str(x[7]) + "\t" +
+                db + "\t" +
+                str(x[12]) + "\t" +
                 str(x[-2]) + "\t" +
                 str(x[-5]) + "\t" +
                 "These results are produced by the LCA algorithm from eDNAFlow\n"
@@ -111,14 +108,14 @@ def create_taxaFinal(acc, table, db):
     f = open("taxaFinal.tsv", "w")
     f.write("seq_id\tdna_sequence\tkingdom\tphylum\tclass\torder\tfamily\tgenus\tspecificEpithet\tscientificName\tscientificNameAuthorship\ttaxonRank\ttaxonID\ttaxonID_db\tverbatimIdentification\taccession_id\taccession_id_ref_db\tpercent_match\tpercent_query_cover\tconfidence_score\tidentificationRemarks\n")
     for x in acc:
-        if x[7] in table:
+        if x[6] in table:
             split_line = x[-6].split("authority=(")
             try:
                 author = split_line[1].split(")] [")[0]
             except IndexError:
                 author = "not applicable: authorship info missing"
-            if x[6] != '':
-                split_species = x[6].split(" ")
+            if x[5] != '':
+                split_species = x[5].split(" ")
                 if len(split_species) == 1:
                     specificEpithet = split_species[0]
                 else:
@@ -130,15 +127,12 @@ def create_taxaFinal(acc, table, db):
                 specificEpithet = x[5]
 
             if specificEpithet == "dropped":
-                if x[5] == "dropped":
-                    if x[4] == "dropped":
-                        if x[3] == "dropped":
-                            if x[2] == "dropped":
-                                if x[1] == "dropped":
-                                    if x[0] == "dropped":
-                                        level = "not applicable: taxonomy rank info missing"
-                                    else:
-                                        level = "kingdom"
+                if x[4] == "dropped":
+                    if x[3] == "dropped":
+                        if x[2] == "dropped":
+                            if x[1] == "dropped":
+                                if x[0] == "dropped":
+                                    level = "not applicable: taxonomy rank info missing"
                                 else:
                                     level = "phylum"
                             else:
@@ -153,24 +147,24 @@ def create_taxaFinal(acc, table, db):
                 level = "species"
 
             f.write(
-                str(x[7]) + "\t" +
+                str(x[6]) + "\t" +
                 str(x[-1]) + "\t" +
+                str("NA") + "\t" +
                 str(x[0]) + "\t" +
                 str(x[1]) + "\t" +
                 str(x[2]) + "\t" +
                 str(x[3]) + "\t" +
                 str(x[4]) + "\t" +
-                str(x[5]) + "\t" +
                 str(specificEpithet) + "\t" +
-                str(x[6]) + "\t" +
+                str(x[5]) + "\t" +
                 author + "\t" +
                 level + "\t" +
-                str(x[9]) + "\t" +
-                db + "\t" +
-                str(x[-6]) + "\t" +
                 str(x[8]) + "\t" +
                 db + "\t" +
-                str(x[13]) + "\t" +
+                str(x[-6]) + "\t" +
+                str(x[7]) + "\t" +
+                db + "\t" +
+                str(x[12]) + "\t" +
                 str(x[-2]) + "\t" +
                 str(x[-5]) + "\t" +
                 "These results are produced by the LCA algorithm from eDNAFlow\n"

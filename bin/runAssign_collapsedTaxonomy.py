@@ -172,16 +172,17 @@ def main():
     for x in acc:
         try:
             # If the Zotu was found also in the dictionary of the table
-            if x[7] in table:
+            if x[6] in table:
                 # print it to the results file
                 print(
-                    "\t".join(x[:8])
+                    "NA\t"
+                    + "\t".join(x[:7])
                     + "\t"
-                    + str(n["vals"][x[7]])
+                    + str(n["vals"][x[6]])
                     + "\t"
-                    + str(x[13])
+                    + str(x[12])
                     + "\t"
-                    + "\t".join(table[x[7]])
+                    + "\t".join(table[x[6]])
                 )
         except IndexError:
             sys.exit(

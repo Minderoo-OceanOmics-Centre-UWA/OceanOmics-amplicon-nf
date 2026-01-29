@@ -58,15 +58,15 @@ process POSTDEMUX_SAMPSHEET {
                 sampsheet.at[row, "fastq_2"] = str(os.getcwd() + "/" + sampsheet.at[row, "samp_name"] + ".R2.fq.gz")
 
     if "discarded" in sampsheet.columns:
-        disc_miss_df = pd.DataFrame(data={"samples_discarded_post_qPCR_QC": discarded_samples})
+        disc_miss_df = pd.DataFrame(data={"samples_labeled_as_discarded": discarded_samples})
         disc_miss_df["samples_with_no_reads_assigned"] = ""
         for row in range(len(disc_miss_df.index)):
-            if (disc_miss_df.at[row, "samples_discarded_post_qPCR_QC"]) in missing_samples:
-                disc_miss_df.at[row, "samples_with_no_reads_assigned"] = disc_miss_df.at[row, "samples_discarded_post_qPCR_QC"]
+            if (disc_miss_df.at[row, "samples_labeled_as_discarded"]) in missing_samples:
+                disc_miss_df.at[row, "samples_with_no_reads_assigned"] = disc_miss_df.at[row, "samples_labeled_as_discarded"]
 
         for sam in missing_samples:
             if (sam not in discarded_samples):
-                new_row = pd.DataFrame(data={"samples_discarded_post_qPCR_QC": [""], "samples_with_no_reads_assigned": [sam]})
+                new_row = pd.DataFrame(data={"samples_labeled_as_discarded": [""], "samples_with_no_reads_assigned": [sam]})
                 disc_miss_df = pd.concat([disc_miss_df, new_row])
         if len(disc_miss_df) > 0:
             disc_miss_df.to_csv("missing_samples.csv", index=False)

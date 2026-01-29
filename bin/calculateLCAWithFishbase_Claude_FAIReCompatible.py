@@ -872,6 +872,14 @@ class BLASTLCAAnalyzer:
                         except KeyError:
                             dna_seq = "not applicable"
 
+                    species = ""
+                    genus = ""
+                    family = ""
+                    order = ""
+                    class_name = ""
+                    phylum = ""
+                    domain = ""
+
                     for rank, name in lineage_list:
                         if not name:
                             # Some entries in worms/fishbase have no Order or Class - ignore

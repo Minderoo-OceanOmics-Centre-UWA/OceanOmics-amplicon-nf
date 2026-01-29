@@ -76,7 +76,23 @@ process CREATE_FAIRE_METADATA {
                 confidence_score = "not applicable",
                 identificationRemarks = "not applicable"
             )
-            new_row[[paste0(${prefix}, "_length")]] <- full_taxa_table[full_taxa_table[[upper_prefix]] == id, paste0(${prefix}, "_length")]
+            if (paste0(${prefix}, "_length") %in% full_taxa_table) {
+                new_row[[paste0(${prefix}, "_length")]] <- full_taxa_table[full_taxa_table[[upper_prefix]] == id, paste0(${prefix}, "_length")]
+            }
+            if (! paste0(${prefix}, "_length") %in% new_row) {
+                if (paste0(${prefix}, "_length") %in% taxa_raw) {
+                    new_row[[paste0(${prefix}, "_length")]] <- taxa_raw[taxa_raw[[upper_prefix]] == id, paste0(${prefix}, "_length")]
+                } else {
+                    taxa_raw[[paste0(${prefix}, "_length")]] <- NULL
+                }
+            }
+            if (! paste0(${prefix}, "_length") %in% new_row) {
+                if (paste0(${prefix}, "_length") %in% taxa_final) {
+                    new_row[[paste0(${prefix}, "_length")]] <- taxa_final[taxa_final[[upper_prefix]] == id, paste0(${prefix}, "_length")]
+                } else {
+                    taxa_final[[paste0(${prefix}, "_length")]] <- NULL
+                }
+            }
 
             taxa_raw <- rbind(taxa_raw, new_row)
             new_row\$unusual_size <- full_taxa_table[full_taxa_table[[upper_prefix]] == id, "unusual_size"]

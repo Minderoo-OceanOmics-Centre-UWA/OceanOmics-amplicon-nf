@@ -489,7 +489,7 @@ workflow OCEANOMICS_AMPLICON {
 
     if (!params.start_from_lca) {
         ch_fasta_split = ch_fasta
-        .splitFasta( by: 1000, file: true )
+        .splitFasta( by: 500, file: true )
     }
 
     //

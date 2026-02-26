@@ -31,7 +31,7 @@ process GET_AQUAMAP_PROBS {
         colnames(out_df) <- samples
         rownames(out_df) <- species
 
-        if ("decimalLatitude" %in% colnames(phyloseq@sam_data) & "decimalLongitude" %in% colnames(phyloseq@sam_data) | "latitude" %in% colnames(phyloseq@sam_data) & "longitude" %in% colnames(phyloseq@sam_data)) {
+        if ("decimalLatitude" %in% colnames(phyloseq@sam_data) & "decimalLongitude" %in% colnames(phyloseq@sam_data) | "latitude" %in% colnames(phyloseq@sam_data) & "longitude" %in% colnames(phyloseq@sam_data) | "decimallatitude" %in% colnames(phyloseq@sam_data) & "decimallongitude" %in% colnames(phyloseq@sam_data)) {
 
             for (spec in species) {
                 spec <- gsub(" ", "_", spec)
@@ -60,6 +60,9 @@ process GET_AQUAMAP_PROBS {
                             } else if ("latitude" %in% colnames(phyloseq@sam_data) & "longitude" %in% colnames(phyloseq@sam_data)) {
                                 sample_lat  <- data.frame(phyloseq@sam_data)[sam, "latitude"]
                                 sample_long <- data.frame(phyloseq@sam_data)[sam, "longitude"]
+                            } else if ("decimallatitude" %in% colnames(phyloseq@sam_data) & "decimallongitude" %in% colnames(phyloseq@sam_data)) {
+                                sample_lat  <- data.frame(phyloseq@sam_data)[sam, "decimallatitude"]
+                                sample_long <- data.frame(phyloseq@sam_data)[sam, "decimallongitude"]
                             }
                             if (! is.na(sample_lat) & ! is.na(sample_long)) {
                                 prob_na     <- FALSE
@@ -91,11 +94,11 @@ process GET_AQUAMAP_PROBS {
                                 # Round lat/long to the closest lat/long
                                 if (prob_na != TRUE) {
                                     if (! sample_lat %in% lats) {
-                                        sample_lat <- lats[which.min(abs(lats - sample_lat))]
+                                        sample_lat <- lats[which.min(abs(as.numeric(lats) - as.numeric(sample_lat)))]
                                     }
 
                                     if (! sample_long %in% longs) {
-                                        sample_long <- longs[which.min(abs(longs - sample_long))]
+                                        sample_long <- longs[which.min(abs(as.numeric(longs) - as.numeric(sample_long)))]
                                     }
 
                                     prob <- probs[toString(sample_long), toString(sample_lat)]

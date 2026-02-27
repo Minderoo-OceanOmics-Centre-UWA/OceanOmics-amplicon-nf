@@ -450,7 +450,7 @@ knit_list_filtered <- get_knit_list(title_filtered,
 `r if (filtered_bool) knitr::knit(text = unlist(knit_list_filtered))`
 
 ```{r primer_contam_stats, results = 'asis', echo=FALSE}
-title_primer     <- "Primer sequences leftover"
+title_primer     <- "Primer sequences leftover after demultiplexing and trimming"
 subtitle_primer  <- "Let's check to see if any primer sequences are
                     found in the ASVs or ZOTUs."
 text_primer      <- c(
@@ -536,9 +536,8 @@ knit_list_q30 <- get_knit_list(title_q30,
 `r if (stats_bool) knitr::knit(text = unlist(knit_list_q30))`
 
 ```{r track_reads, echo=FALSE}
-title_track     <- "Tracking Reads"
-subtitle_track  <- "Lets look at the number of reads
-                    demultiplexed compared to the raw data."
+title_track     <- "Tracking read fate throughout demultiplexing and primer trimming"
+subtitle_track  <- "Lets look at the allocation of demultiplexed reads compared to the raw data."
 text_track      <- c(
     "```{r intext_track_reads, results='asis', echo=FALSE}\n",
     "reads_tracking %>%
@@ -560,7 +559,7 @@ knit_list_track <- get_knit_list(title_track,
 `r if (stats_bool) knitr::knit(text = unlist(knit_list_track))`
 
 ```{r error_plots, results = 'asis', echo=FALSE}
-title_errors     <- "Error plots"
+title_errors     <- "Error rates informing ASV inference"
 subtitle_errors  <- "The error rates used during the DADA2 step."
 text_errors      <- c(
     "```{r intext_errors, results='asis', echo=FALSE}\n",
@@ -575,7 +574,7 @@ knit_list_errors <- get_knit_list(title_errors,
 `r if (file.exists("errors_plot_fw.png")) knitr::knit(text = unlist(knit_list_errors))`
 
 ```{r quality_profiles, results = 'asis', echo=FALSE}
-title_qual     <- "Random sample quality profiles"
+title_qual     <- "Selected sample quality profiles"
 subtitle_qual  <- "Visualise the quality profiles of up to three
                     random samples after the filterAndTrim function."
 text_qual      <- c(
@@ -595,7 +594,7 @@ knit_list_qual <- get_knit_list(title_qual,
 `r if (quals_bool) knitr::knit(text = unlist(knit_list_qual))`
 
 ```{r sequence_distribution, results = 'asis', echo=FALSE}
-title_distribution     <- "ASV seq distribution"
+title_distribution     <- "ASV sequence length distribution"
 subtitle_distribution  <- "After the DADA2 step has been run on the
                             forward and reverse reads,
                             the paired end reads are merged.
@@ -615,10 +614,8 @@ knit_list_distribution <- get_knit_list(title_distribution,
 `r if (file.exists("ASV_seq_distribution.png")) knitr::knit(text = unlist(knit_list_distribution))`
 
 ```{r samples_through_stages, results = 'asis', echo=FALSE}
-title_stages     <- "Samples Through Stages"
-subtitle_stages  <- "Now lets look at box plots
-                    that visualise the number of reads
-                    after the different steps of the pipeline."
+title_stages     <- "Read retention through different workflow stages"
+subtitle_stages  <- "Now lets look at box plots that visualise the number of reads retained after the different steps of the pipeline."
 text_stages      <- c(
     "### Analysis Type: {{i}}  \n",
     "```{r intext_stages_{{i}}, results='asis', echo=FALSE}  \n",
@@ -634,24 +631,59 @@ knit_list_stages <- get_knit_list(title_stages,
 `r if (stages_bool) knitr::knit(text = unlist(knit_list_stages))`
 
 ```{r lca_counts, echo=FALSE}
-title_lca     <- "LCAs"
-subtitle_lca  <- "The number of Lowest Common Ancestors (LCAs)
-                    found at the species level, genus level, etc."
-text_lca      <- c(
-    "### Analysis Type: {{i}}  \n",
-    "```{r intext_lca_{{i}}, results='asis', echo=FALSE}  \n",
-    "cat('  \n',
-    'LCAs at species level: ', species[['{{i}}']], '  \n',
-    'LCAs at genus level: ', genus[['{{i}}']], '  \n',
-    'LCAs at family level: ', family[['{{i}}']], '  \n',
-    'LCAs at order level: ', order[['{{i}}']], '  \n',
-    'LCAs at class level: ', class[['{{i}}']], '  \n',
-    'LCAs at phylum level: ', phylum[['{{i}}']], '  \n',
-    'LCAs at domain level: ', domain[['{{i}}']], '  \n',
-    'No assignments: ', nas[['{{i}}']], '  \n',
-    '  \n')",
-    "```  \n"
-)
+title_lca     <- "Summary of taxonomic identity assignment"
+if ("ASV" %in% seq_types & ! "ZOTU" %in% seq_types) {
+    subtitle_lca  <- "The number of ASVs with a taxonomic assignment (Lowest Common Ancestor; LCAs) at different levels of the taxonomic heirarchy"
+    text_lca      <- c(
+        "### Analysis Type: {{i}}  \n",
+        "```{r intext_lca_{{i}}, results='asis', echo=FALSE}  \n",
+        "cat('  \n',
+        'ASVs with LCAs at species level: ', species[['{{i}}']], '  \n',
+        'ASVs with LCAs at genus level: ', genus[['{{i}}']], '  \n',
+        'ASVs with LCAs at family level: ', family[['{{i}}']], '  \n',
+        'ASVs with LCAs at order level: ', order[['{{i}}']], '  \n',
+        'ASVs with LCAs at class level: ', class[['{{i}}']], '  \n',
+        'ASVs with LCAs at phylum level: ', phylum[['{{i}}']], '  \n',
+        'ASVs with LCAs at domain level: ', domain[['{{i}}']], '  \n',
+        'No assignments: ', nas[['{{i}}']], '  \n',
+        '  \n')",
+        "```  \n"
+    )
+} else if ("ZOTU" %in% seq_types & ! "ASV" %in% seq_types) {
+    subtitle_lca  <- "The number of ZOTUs with a taxonomic assignment (Lowest Common Ancestor; LCAs) at different levels of the taxonomic heirarchy"
+    text_lca      <- c(
+        "### Analysis Type: {{i}}  \n",
+        "```{r intext_lca_{{i}}, results='asis', echo=FALSE}  \n",
+        "cat('  \n',
+        'ZOTUs with LCAs at species level: ', species[['{{i}}']], '  \n',
+        'ZOTUs with LCAs at genus level: ', genus[['{{i}}']], '  \n',
+        'ZOTUs with LCAs at family level: ', family[['{{i}}']], '  \n',
+        'ZOTUs with LCAs at order level: ', order[['{{i}}']], '  \n',
+        'ZOTUs with LCAs at class level: ', class[['{{i}}']], '  \n',
+        'ZOTUs with LCAs at phylum level: ', phylum[['{{i}}']], '  \n',
+        'ZOTUs with LCAs at domain level: ', domain[['{{i}}']], '  \n',
+        'No assignments: ', nas[['{{i}}']], '  \n',
+        '  \n')",
+        "```  \n"
+    )
+} else {
+    subtitle_lca  <- "The number of ASVs/ZOTUs with a taxonomic assignment (Lowest Common Ancestor; LCAs) at different levels of the taxonomic heirarchy"
+    text_lca      <- c(
+        "### Analysis Type: {{i}}  \n",
+        "```{r intext_lca_{{i}}, results='asis', echo=FALSE}  \n",
+        "cat('  \n',
+        'ASVs/ZOTUs with LCAs at species level: ', species[['{{i}}']], '  \n',
+        'ASVs/ZOTUs with LCAs at genus level: ', genus[['{{i}}']], '  \n',
+        'ASVs/ZOTUs with LCAs at family level: ', family[['{{i}}']], '  \n',
+        'ASVs/ZOTUs with LCAs at order level: ', order[['{{i}}']], '  \n',
+        'ASVs/ZOTUs with LCAs at class level: ', class[['{{i}}']], '  \n',
+        'ASVs/ZOTUs with LCAs at phylum level: ', phylum[['{{i}}']], '  \n',
+        'ASVs/ZOTUs with LCAs at domain level: ', domain[['{{i}}']], '  \n',
+        'No assignments: ', nas[['{{i}}']], '  \n',
+        '  \n')",
+        "```  \n"
+    )
+}
 
 knit_list_lca <- get_knit_list(title_lca,
                                 subtitle_lca,

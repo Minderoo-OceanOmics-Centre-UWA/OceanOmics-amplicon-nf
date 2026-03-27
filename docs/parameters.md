@@ -18,7 +18,7 @@ All the parameters in the pipeline can be set in a config file, or they can be s
 
 ### Parameters to automate choosing other parameters
 
-- [assay](#assay) - The assay of your data if you want certain parameters chosen automatically. The assay will also be added to filenames. Currently supports `16SFish`, `16SMam`, `MiFish`, `12SV5`, and `COILeray`. The `-c` option can be used to provide a custom map with other assays. More information can be found [here](https://github.com/MinderooFoundation/OceanOmics-amplicon-nf/blob/master/docs/custom_config.md)
+- [assay](#assay) - The assay of your data if you want certain parameters chosen automatically. The assay will also be added to filenames. Currently supports `16SFishD`, `16SMam`, `MiFish`, `12SV5`, and `COILeray`. The `-c` option can be used to provide a custom map with other assays. More information can be found [here](https://github.com/MinderooFoundation/OceanOmics-amplicon-nf/blob/master/docs/custom_config.md)
 - [project_id](#project_id) - The project ID will be added to filenames.
 
 ### Demultiplex parameters

@@ -9,8 +9,9 @@ process BLAST_BLASTN {
     path db
 
     output:
-    tuple val(prefix), path("*.txt"), emit: txt
-    path "versions.yml"             , emit: versions
+    tuple val(prefix), path("*blastn_results.txt"), emit: txt
+    tuple val(prefix), path("*default_format.txt"), emit: default_format
+    path "versions.yml"                           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -18,6 +19,7 @@ process BLAST_BLASTN {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${prefix}"
+    ////"-outfmt '6 qseqid sseqid staxids sscinames scomnames sskingdoms pident length qlen slen mismatch gapopen gaps qstart qend sstart send stitle evalue bitscore qcovs qcovhsp'",
     """
     DB=`echo \$(ls *.ndb | sed 's/\\.ndb\$//')`
 
@@ -26,7 +28,11 @@ process BLAST_BLASTN {
         -db "\$DB" \\
         -query $fasta \\
         $args \\
-        -out ${prefix}_${fasta}_blastn_results.txt
+        -outfmt 11 \\
+        -out ${prefix}_${fasta}_blastn_results.asn
+
+    blast_formatter -archive ${prefix}_${fasta}_blastn_results.asn -outfmt "6 qseqid sseqid staxids sscinames scomnames sskingdoms pident length qlen slen mismatch gapopen gaps qstart qend sstart send stitle evalue bitscore qcovs qcovhsp" > ${prefix}_${fasta}_blastn_results.txt
+    blast_formatter -archive ${prefix}_${fasta}_blastn_results.asn > ${prefix}_${fasta}_blastn_results_default_format.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -34,13 +34,13 @@ process GET_AQUAMAP_PROBS {
         if ("decimalLatitude" %in% colnames(phyloseq@sam_data) & "decimalLongitude" %in% colnames(phyloseq@sam_data) | "latitude" %in% colnames(phyloseq@sam_data) & "longitude" %in% colnames(phyloseq@sam_data) | "decimallatitude" %in% colnames(phyloseq@sam_data) & "decimallongitude" %in% colnames(phyloseq@sam_data)) {
 
             for (spec in species) {
-                spec <- gsub(" ", "_", spec)
+                spec_undscore <- gsub(" ", "_", spec)
 
-                if (file.exists(paste0(spec, ".nc")) & ! startsWith(spec, '[')) {
+                if (file.exists(paste0(spec_undscore, ".nc")) & ! startsWith(spec_undscore, '[')) {
                     continue = FALSE
 
                     result = tryCatch({
-                        nc              <- nc_open(paste0(spec, ".nc"))
+                        nc              <- nc_open(paste0(spec_undscore, ".nc"))
                         probs           <- data.frame(ncvar_get(nc, varid = "probability"))
                         lats            <- ncvar_get(nc, varid = "latitude")
                         longs           <- ncvar_get(nc, varid = "longitude")
@@ -48,7 +48,7 @@ process GET_AQUAMAP_PROBS {
                         rownames(probs) <- longs
                         continue = TRUE
                     }, error = function(e) {
-                        out_df[spec, sam] <- NA
+                        out_df[spec_undscore, sam] <- NA
                         continue = FALSE
                     })
 
@@ -104,14 +104,14 @@ process GET_AQUAMAP_PROBS {
                                     prob <- probs[toString(sample_long), toString(sample_lat)]
                                 }
 
-                                out_df[spec, sam] <- prob
+                                out_df[spec_undscore, sam] <- prob
                             } else {
-                                out_df[spec, sam] <- NA
+                                out_df[spec_undscore, sam] <- NA
                             }
                         }
                     }
                 } else {
-                    out_df[spec, ] <- "Species not in aquamaps"
+                    out_df[spec_undscore, ] <- "Species not in aquamaps"
                 }
             }
 

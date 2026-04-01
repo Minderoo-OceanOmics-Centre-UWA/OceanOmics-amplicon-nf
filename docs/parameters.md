@@ -18,7 +18,7 @@ All the parameters in the pipeline can be set in a config file, or they can be s
 
 ### Parameters to automate choosing other parameters
 
-- [assay](#assay) - The assay of your data if you want certain parameters chosen automatically. The assay will also be added to filenames. Currently supports `16SFishD`, `16SMam`, `MiFish`, `12SV5`, and `COILeray`. The `-c` option can be used to provide a custom map with other assays. More information can be found [here](https://github.com/MinderooFoundation/OceanOmics-amplicon-nf/blob/master/docs/custom_config.md)
+- [assay](#assay) - The assay of your data if you want certain parameters chosen automatically. The assay will also be added to filenames. Currently supports `16SFish`, `16SMam`, `MiFish`, `12SV5`, and `COILeray`. The `-c` option can be used to provide a custom map with other assays. More information can be found [here](https://github.com/MinderooFoundation/OceanOmics-amplicon-nf/blob/master/docs/custom_config.md)
 - [project_id](#project_id) - The project ID will be added to filenames.
 
 ### Demultiplex parameters
@@ -70,6 +70,9 @@ All the parameters in the pipeline can be set in a config file, or they can be s
 - [blast_qcov](#blast_qcov) - default = 90
 - [blast_max_tar_seq](#blast_max_tar_seq) - default = 999999
 - [blast_twice](#blast_twice) - default - false; only useful if you use `--dbfiles2` to provide a second blast database.
+- [blast_taxids] - taxids in your database that you want to use during the BLAST step. Multiple taxids can be comma separated "334889,86063"
+- [blast_negative_taxids] - taxids in your database that you don't want to use during the BLAST step. Multiple taxids can be comma separated "334889,86063"
+- [blast_negative_seqidlist] - seqid in your database that you don't want to use during the BLAST step. Can be a file of seqids. You will probably need to provide the absolute path to the file and you may also need to use the --binddir parameter.
 
 ### LULU parameters
 

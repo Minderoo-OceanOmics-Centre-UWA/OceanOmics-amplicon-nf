@@ -276,6 +276,18 @@
                     "type": "boolean",
                     "description": ""
                 },
+                "blast_taxids": {
+                    "type": "string",
+                    "description": ""
+                },
+                "blast_negative_taxids": {
+                    "type": "string",
+                    "description": ""
+                },
+                "blast_negative_seqidlist": {
+                    "type": "string",
+                    "description": ""
+                },
                 "lulu_min_match": {
                     "type": "integer",
                     "description": "",

@@ -19,7 +19,6 @@ process BLAST_BLASTN {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${prefix}"
-    ////"-outfmt '6 qseqid sseqid staxids sscinames scomnames sskingdoms pident length qlen slen mismatch gapopen gaps qstart qend sstart send stitle evalue bitscore qcovs qcovhsp'",
     """
     DB=`echo \$(ls *.ndb | sed 's/\\.ndb\$//')`
 

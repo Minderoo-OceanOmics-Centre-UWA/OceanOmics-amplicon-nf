@@ -16,7 +16,7 @@ process CONCAT_BLASTN_RESULTS {
     script:
     def args = task.ext.args ?: ''
     """
-    cat $files > ${prefix}_blastn_results.txt
+    cat ${files} > ${prefix}_blastn_results.txt
 
     if [ ! -s "${prefix}_blastn_results.txt" ]; then
         echo "Error: ${prefix} blast results are empty, try a different blast database or try lowering the '--perc_identity' or '--qcov' values."

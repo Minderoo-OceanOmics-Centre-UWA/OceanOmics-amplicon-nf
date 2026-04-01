@@ -148,46 +148,47 @@ if (!params.skip_demux && !params.start_from_blast && !params.start_from_lca) {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { FAIRE_CHECK                        } from '../modules/local/custom/faire_check/main.nf'
-include { ADD_EXPERIMENTRUNMETADATA          } from '../modules/local/custom/add_experimentrunmetadata/main.nf'
-include { CREATE_FAIRE_METADATA              } from '../modules/local/custom/create_faire_metadata/main.nf'
-include { CREATE_FAIRE_METADATA_NOTAXA       } from '../modules/local/custom/create_faire_metadata_notaxa/main.nf'
-include { RENAME_OTURAW                      } from '../modules/local/custom/rename_oturaw/main.nf'
-include { REFORMAT_OTUFINAL                  } from '../modules/local/custom/reformat_otufinal/main.nf'
-include { BLAST_BLASTN                       } from '../modules/local/blast/blastn/main.nf'
-include { BLAST_BLASTN as BLAST_BLASTN2      } from '../modules/local/blast/blastn/main.nf'
-include { CONCAT_BLASTN_RESULTS              } from '../modules/local/custom/concat_blastn_results/main.nf'
-include { CURATE_BLASTN_RESULTS              } from '../modules/local/custom/curate_blastn_results/main.nf'
-include { LCA                                } from '../modules/local/lca/main.nf'
-include { LCA_WITH_FISHBASE                  } from '../modules/local/custom/lca_with_fishbase/main.nf'
-include { PHYLOSEQ                           } from '../modules/local/phyloseq/main.nf'
-include { REMOVE_DUPS                        } from '../modules/local/custom/removedups/main.nf'
-include { FLAG_OTUS_OUTSIDERANGE             } from '../modules/local/custom/flag_otus_outsiderange/main.nf'
-include { OCOMNBC                            } from '../modules/local/custom/ocomnbc/main.nf'
-include { MARKDOWN_REPORT                    } from '../modules/local/custom/markdownreport/main.nf'
-include { GET_PRIMERFILES                    } from '../modules/local/custom/getprimerfiles/main.nf'
-include { CUTADAPT as CUTADAPT_TRIM_PRIMERS  } from '../modules/local/cutadapt/main.nf'
-include { CUTADAPT_TRIM_LEFTOVER_PRIMERS     } from '../modules/local/cutadapt_trim_leftover_primers/main.nf'
-include { SEQKIT_STATS as PREFILTERING_STATS } from '../modules/local/seqkit_stats/main.nf'
-include { SEQKIT_STATS as FINAL_STATS        } from '../modules/local/seqkit_stats/main.nf'
-include { SEQTK_TRIM                         } from '../modules/local/seqtk/trim/main.nf'
-include { FASTP                              } from '../modules/local/fastp/main.nf'
-include { CUTADAPT_WORKFLOW                  } from '../subworkflows/local/cutadapt_workflow'
-include { ASV_WORKFLOW                       } from '../subworkflows/local/asv_workflow'
-include { INPUT_CHECK                        } from '../subworkflows/local/input_check'
-include { LULU_WORKFLOW                      } from '../subworkflows/local/lulu_workflow'
-include { ZOTU_WORKFLOW                      } from '../subworkflows/local/zotu_workflow'
-include { POSTDEMUX_WORKFLOW                 } from '../subworkflows/local/postdemux_workflow'
-include { CUSTOM_DUMPSOFTWAREVERSIONS        } from '../modules/nf-core/custom/dumpsoftwareversions/main'
-include { FASTQC                             } from '../modules/nf-core/fastqc/main'
-include { MULTIQC                            } from '../modules/nf-core/multiqc/main'
-include { DOWNLOAD_AQUAMAPS                  } from '../modules/local/custom/download_aquamaps/main'
-include { GET_AQUAMAP_PROBS                  } from '../modules/local/custom/getaquamapprobs/main'
-include { GET_CAAB_PROBS                     } from '../modules/local/custom/getcaabprobs/main'
-include { PRIMER_CONTAM_STATS                } from '../modules/local/custom/primercontamstats/main'
-include { PROPORTIONAL_FILTER                 } from '../modules/local/custom/proportional_filter/main'
-include { INPUTFILE_INFO                     } from '../modules/local/custom/inputfile_info/main'
-include { CONCATFILE_INFO                    } from '../modules/local/custom/concatfile_info/main'
+include { FAIRE_CHECK                                            } from '../modules/local/custom/faire_check/main.nf'
+include { ADD_EXPERIMENTRUNMETADATA                              } from '../modules/local/custom/add_experimentrunmetadata/main.nf'
+include { CREATE_FAIRE_METADATA                                  } from '../modules/local/custom/create_faire_metadata/main.nf'
+include { CREATE_FAIRE_METADATA_NOTAXA                           } from '../modules/local/custom/create_faire_metadata_notaxa/main.nf'
+include { RENAME_OTURAW                                          } from '../modules/local/custom/rename_oturaw/main.nf'
+include { REFORMAT_OTUFINAL                                      } from '../modules/local/custom/reformat_otufinal/main.nf'
+include { BLAST_BLASTN                                           } from '../modules/local/blast/blastn/main.nf'
+include { BLAST_BLASTN as BLAST_BLASTN2                          } from '../modules/local/blast/blastn/main.nf'
+include { CONCAT_BLASTN_RESULTS                                  } from '../modules/local/custom/concat_blastn_results/main.nf'
+include { CONCAT_BLASTN_RESULTS as CONCAT_BLASTN_DEFAULT_RESULTS } from '../modules/local/custom/concat_blastn_results/main.nf'
+include { CURATE_BLASTN_RESULTS                                  } from '../modules/local/custom/curate_blastn_results/main.nf'
+include { LCA                                                    } from '../modules/local/lca/main.nf'
+include { LCA_WITH_FISHBASE                                      } from '../modules/local/custom/lca_with_fishbase/main.nf'
+include { PHYLOSEQ                                               } from '../modules/local/phyloseq/main.nf'
+include { REMOVE_DUPS                                            } from '../modules/local/custom/removedups/main.nf'
+include { FLAG_OTUS_OUTSIDERANGE                                 } from '../modules/local/custom/flag_otus_outsiderange/main.nf'
+include { OCOMNBC                                                } from '../modules/local/custom/ocomnbc/main.nf'
+include { MARKDOWN_REPORT                                        } from '../modules/local/custom/markdownreport/main.nf'
+include { GET_PRIMERFILES                                        } from '../modules/local/custom/getprimerfiles/main.nf'
+include { CUTADAPT as CUTADAPT_TRIM_PRIMERS                      } from '../modules/local/cutadapt/main.nf'
+include { CUTADAPT_TRIM_LEFTOVER_PRIMERS                         } from '../modules/local/cutadapt_trim_leftover_primers/main.nf'
+include { SEQKIT_STATS as PREFILTERING_STATS                     } from '../modules/local/seqkit_stats/main.nf'
+include { SEQKIT_STATS as FINAL_STATS                            } from '../modules/local/seqkit_stats/main.nf'
+include { SEQTK_TRIM                                             } from '../modules/local/seqtk/trim/main.nf'
+include { FASTP                                                  } from '../modules/local/fastp/main.nf'
+include { CUTADAPT_WORKFLOW                                      } from '../subworkflows/local/cutadapt_workflow'
+include { ASV_WORKFLOW                                           } from '../subworkflows/local/asv_workflow'
+include { INPUT_CHECK                                            } from '../subworkflows/local/input_check'
+include { LULU_WORKFLOW                                          } from '../subworkflows/local/lulu_workflow'
+include { ZOTU_WORKFLOW                                          } from '../subworkflows/local/zotu_workflow'
+include { POSTDEMUX_WORKFLOW                                     } from '../subworkflows/local/postdemux_workflow'
+include { CUSTOM_DUMPSOFTWAREVERSIONS                            } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { FASTQC                                                 } from '../modules/nf-core/fastqc/main'
+include { MULTIQC                                                } from '../modules/nf-core/multiqc/main'
+include { DOWNLOAD_AQUAMAPS                                      } from '../modules/local/custom/download_aquamaps/main'
+include { GET_AQUAMAP_PROBS                                      } from '../modules/local/custom/getaquamapprobs/main'
+include { GET_CAAB_PROBS                                         } from '../modules/local/custom/getcaabprobs/main'
+include { PRIMER_CONTAM_STATS                                    } from '../modules/local/custom/primercontamstats/main'
+include { PROPORTIONAL_FILTER                                    } from '../modules/local/custom/proportional_filter/main'
+include { INPUTFILE_INFO                                         } from '../modules/local/custom/inputfile_info/main'
+include { CONCATFILE_INFO                                        } from '../modules/local/custom/concatfile_info/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -509,6 +510,12 @@ workflow OCEANOMICS_AMPLICON {
                     prefix = prefix + "_blast"
                     return [ prefix, table ]
                 }
+            ch_preconcat_blast_default = BLAST_BLASTN.out.default_format.groupTuple()
+                .map {
+                    prefix, table ->
+                    prefix = prefix + "_blast_default_format"
+                    return [ prefix, table ]
+                }
             ch_curated_fasta = ch_curated_fasta
                 .map {
                     prefix, fasta ->
@@ -551,6 +558,14 @@ workflow OCEANOMICS_AMPLICON {
                     .map {
                         prefix, table ->
                         prefix = prefix + "_blast2"
+                        return [ prefix, table ]
+                    }
+                )
+                ch_preconcat_blast_default = ch_preconcat_blast_default.mix(
+                    BLAST_BLASTN2.out.txt.groupTuple()
+                    .map {
+                        prefix, table ->
+                        prefix = prefix + "_blast2_default_format"
                         return [ prefix, table ]
                     }
                 )
@@ -598,6 +613,9 @@ workflow OCEANOMICS_AMPLICON {
 
             CONCAT_BLASTN_RESULTS (
                 ch_preconcat_blast
+            )
+            CONCAT_BLASTN_DEFAULT_RESULTS (
+                ch_preconcat_blast_default
             )
         }
 

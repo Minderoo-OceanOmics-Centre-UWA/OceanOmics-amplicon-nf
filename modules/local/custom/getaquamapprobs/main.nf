@@ -29,7 +29,7 @@ process GET_AQUAMAP_PROBS {
         samples          <- rownames(phyloseq@sam_data)
         out_df           <- data.frame(matrix(ncol = length(samples), nrow = length(species)))
         colnames(out_df) <- samples
-        rownames(out_df) <- species
+        rownames(out_df) <- gsub(" ", "_", species)
 
         if ("decimalLatitude" %in% colnames(phyloseq@sam_data) & "decimalLongitude" %in% colnames(phyloseq@sam_data) | "latitude" %in% colnames(phyloseq@sam_data) & "longitude" %in% colnames(phyloseq@sam_data) | "decimallatitude" %in% colnames(phyloseq@sam_data) & "decimallongitude" %in% colnames(phyloseq@sam_data)) {
 
@@ -48,7 +48,7 @@ process GET_AQUAMAP_PROBS {
                         rownames(probs) <- longs
                         continue = TRUE
                     }, error = function(e) {
-                        out_df[spec_undscore, sam] <- NA
+                        out_df[spec_undscore, ] <- NA
                         continue = FALSE
                     })
 

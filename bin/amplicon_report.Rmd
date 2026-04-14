@@ -169,6 +169,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
     taxa_bool      <- TRUE
     tax_dfs        <- list()
     na_dfs         <- list()
+    both_dfs       <- list()
     seq_types      <- c()
     analysis_types <- c()
 
@@ -179,8 +180,9 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
         curr_taxa           <- read.table("asv_blast_phyloseq_taxa_filtered.tsv",
                                         sep = "\t", header = TRUE)
 
-        tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
-        na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        tax_dfs[[seq_type]]  <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
+        na_dfs[[seq_type]]   <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
 
     } else if (file.exists("asv_blast_phyloseq_taxa.tsv")) {
         seq_type            <- "ASV"
@@ -191,6 +193,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
     }
 
     if (file.exists("asv_blast_lulucurated_phyloseq_taxa_filtered.tsv")) {
@@ -201,6 +204,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
 
     } else if (file.exists("asv_blast_lulucurated_phyloseq_taxa.tsv")) {
         seq_type            <- "ASV_LULUCURATED"
@@ -210,6 +214,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
     }
 
     if (file.exists("zotu_blast_phyloseq_taxa_filtered.tsv")) {
@@ -221,6 +226,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
 
     } else if (file.exists("zotu_blast_phyloseq_taxa.tsv")) {
         seq_type            <- "ZOTU"
@@ -231,6 +237,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
     }
 
     if (file.exists("zotu_blast_lulucurated_phyloseq_taxa_filtered.tsv")) {
@@ -241,6 +248,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
 
     } else if (file.exists("zotu_blast_lulucurated_phyloseq_taxa.tsv")) {
         seq_type            <- "ZOTU_LULUCURATED"
@@ -250,6 +258,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
     }
 
 
@@ -266,6 +275,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
 
     } else if (file.exists("asv_blast2_phyloseq_taxa.tsv")) {
         seq_type            <- "ASV_SECOND_DB"
@@ -275,6 +285,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
     }
 
     if (file.exists("asv_blast2_lulucurated_phyloseq_taxa_filtered.tsv")) {
@@ -285,6 +296,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
 
     } else if (file.exists("asv_blast2_lulucurated_phyloseq_taxa.tsv")) {
         seq_type            <- "ASV_LULUCURATED_SECOND_DB"
@@ -294,6 +306,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
     }
 
     if (file.exists("zotu_blast2_phyloseq_taxa_filtered.tsv")) {
@@ -304,6 +317,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
 
     } else if (file.exists("zotu_blast2_phyloseq_taxa.tsv")) {
         seq_type            <- "ZOTU_SECOND_DB"
@@ -313,6 +327,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
     }
 
     if (file.exists("zotu_blast2_lulucurated_phyloseq_taxa_filtered.tsv")) {
@@ -323,6 +338,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
 
     } else if (file.exists("zotu_blast2_lulucurated_phyloseq_taxa.tsv")) {
         seq_type            <- "ZOTU_LULUCURATED_SECOND_DB"
@@ -332,27 +348,30 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
     }
 
-    species <- list()
-    genus   <- list()
-    family  <- list()
-    order   <- list()
-    class   <- list()
-    phylum  <- list()
-    domain  <- list()
-    nas     <- list()
+    species  <- list()
+    genus    <- list()
+    family   <- list()
+    order    <- list()
+    class    <- list()
+    phylum   <- list()
+    domain   <- list()
+    nas      <- list()
+    asvs_num <- list()
 
     # Calculate LCA counts for all sequence types
     for (i in analysis_types) {
-        species[[i]] <- 0
-        genus[[i]]   <- 0
-        family[[i]]  <- 0
-        order[[i]]   <- 0
-        class[[i]]   <- 0
-        phylum[[i]]  <- 0
-        domain[[i]]  <- 0
-        nas[[i]]     <- nrow(na_dfs[[i]][[1]])
+        species[[i]]  <- 0
+        genus[[i]]    <- 0
+        family[[i]]   <- 0
+        order[[i]]    <- 0
+        class[[i]]    <- 0
+        phylum[[i]]   <- 0
+        domain[[i]]   <- 0
+        nas[[i]]      <- nrow(na_dfs[[i]][[1]])
+        asvs_num[[i]] <- nrow(both_dfs[[i]][[1]])
 
         # Calculate LCA counts for different taxa levels
         for (row in seq_len(nrow(tax_dfs[[i]][[1]]))) {
@@ -373,6 +392,15 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
                 domain[[i]]  <- domain[[i]] + 1
             }
         }
+
+        species[[i]] <- paste0(species[[i]], " (", round((species[[i]]/asvs_num[[i]])*100, 2), "%)")
+        genus[[i]]   <- paste0(genus[[i]], " (", round((genus[[i]]/asvs_num[[i]])*100, 2), "%)")
+        family[[i]]  <- paste0(family[[i]], " (", round((family[[i]]/asvs_num[[i]])*100, 2), "%)")
+        order[[i]]   <- paste0(order[[i]], " (", round((order[[i]]/asvs_num[[i]])*100, 2), "%)")
+        class[[i]]   <- paste0(class[[i]], " (", round((class[[i]]/asvs_num[[i]])*100, 2), "%)")
+        phylum[[i]]  <- paste0(phylum[[i]], " (", round((phylum[[i]]/asvs_num[[i]])*100, 2), "%)")
+        domain[[i]]  <- paste0(domain[[i]], " (", round((domain[[i]]/asvs_num[[i]])*100, 2), "%)")
+        nas[[i]]     <- paste0(nas[[i]], " (", round((nas[[i]]/asvs_num[[i]])*100, 2), "%)")
     }
 } else {
     taxa_bool      <- FALSE

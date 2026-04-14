@@ -189,6 +189,8 @@ include { PRIMER_CONTAM_STATS                                    } from '../modu
 include { PROPORTIONAL_FILTER                                    } from '../modules/local/custom/proportional_filter/main'
 include { INPUTFILE_INFO                                         } from '../modules/local/custom/inputfile_info/main'
 include { CONCATFILE_INFO                                        } from '../modules/local/custom/concatfile_info/main'
+include { FILT_WITH_MASTERLIST                                   } from '../modules/local/custom/filt_with_masterlist/main'
+include { ADD_BACK_MASTERLIST                                    } from '../modules/local/custom/add_back_masterlist/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -488,8 +490,18 @@ workflow OCEANOMICS_AMPLICON {
             )
     }
 
+    if (params.masterlist) {
+        FILT_WITH_MASTERLIST (
+            ch_fasta,
+            file(params.masterlist)
+        )
+        ch_fasta_filtered = FILT_WITH_MASTERLIST.out.fasta
+    } else {
+        ch_fasta_filtered = ch_fasta
+    }
+
     if (!params.start_from_lca) {
-        ch_fasta_split = ch_fasta
+        ch_fasta_split = ch_fasta_filtered
         .splitFasta( by: 500, file: true )
     }
 
@@ -698,13 +710,23 @@ workflow OCEANOMICS_AMPLICON {
                         return [ prefix, table ]
                     }
             )
+        
         ch_phyloseq_input = ch_otu_table.join(ch_lca_out.join(OCOMNBC.out.nbc_output))
+        if (params.masterlist) {
+            ADD_BACK_MASTERLIST (
+                ch_phyloseq_input,
+                FILT_WITH_MASTERLIST.out.removed_seqs
+            )
+            ch_phyloseq_input_updated = ADD_BACK_MASTERLIST.out.tsv
+        } else {
+            ch_phyloseq_input_updated = ch_phyloseq_input
+        }
 
         //
         // MODULE: Create Phyloseq object
         //
         PHYLOSEQ (
-            ch_phyloseq_input,
+            ch_phyloseq_input_updated,
             ch_input.first(),
             ch_filter
         )

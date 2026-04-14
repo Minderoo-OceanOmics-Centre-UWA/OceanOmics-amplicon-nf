@@ -65,6 +65,10 @@ process PRIMER_CONTAM_STATS {
                 echo "  <summary>ASVs with the first half of the fw primer</summary>" >> ${prefix}_primer_contam_stats.txt
                 echo "  <p>\$(grep \${fw_prim_firsthalf_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
                 echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+                while IFS= read -r line; do
+                    contam_asvs+=( "\$line" )
+                done < <(grep \${fw_prim_firsthalf_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
             fi
 
             echo "<br>fw prim second half \${fw_prim_secondhalf} found \$(grep \${fw_prim_secondhalf_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -73,6 +77,10 @@ process PRIMER_CONTAM_STATS {
                 echo "  <summary>ASVs with the second half of the fw primer</summary>" >> ${prefix}_primer_contam_stats.txt
                 echo "  <p>\$(grep \${fw_prim_secondhalf_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
                 echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+                while IFS= read -r line; do
+                    contam_asvs+=( "\$line" )
+                done < <(grep \${fw_prim_secondhalf_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
             fi
 
             echo "<br>fw prim reverse-complemented \${fw_prim_rev} found \$(grep \${fw_prim_rev_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -81,6 +89,10 @@ process PRIMER_CONTAM_STATS {
                 echo "  <summary>ASVs with fw primer reversed</summary>" >> ${prefix}_primer_contam_stats.txt
                 echo "  <p>\$(grep \${fw_prim_rev_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
                 echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+                while IFS= read -r line; do
+                    contam_asvs+=( "\$line" )
+                done < <(grep \${fw_prim_rev_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
             fi
 
             echo "<br>fw prim first half reverse-complemented \${fw_prim_firsthalf_rev} found \$(grep \${fw_prim_firsthalf_rev_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -89,6 +101,10 @@ process PRIMER_CONTAM_STATS {
                 echo "  <summary>ASVs with the first half of the fw primer reversed</summary>" >> ${prefix}_primer_contam_stats.txt
                 echo "  <p>\$(grep \${fw_prim_firsthalf_rev_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
                 echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+                while IFS= read -r line; do
+                    contam_asvs+=( "\$line" )
+                done < <(grep \${fw_prim_firsthalf_rev_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
             fi
 
             echo "<br>fw prim second half reverse-complemented \${fw_prim_secondhalf_rev} found \$(grep \${fw_prim_secondhalf_rev_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -97,6 +113,10 @@ process PRIMER_CONTAM_STATS {
                 echo "  <summary>ASVs with the second half of the fw primer reversed</summary>" >> ${prefix}_primer_contam_stats.txt
                 echo "  <p>\$(grep \${fw_prim_secondhalf_rev_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
                 echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+                while IFS= read -r line; do
+                    contam_asvs+=( "\$line" )
+                done < <(grep \${fw_prim_secondhalf_rev_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
             fi
         done
     else
@@ -120,6 +140,10 @@ process PRIMER_CONTAM_STATS {
             echo "  <summary>ASVs with the fw primer</summary>" >> ${prefix}_primer_contam_stats.txt
             echo "  <p>\$(grep \${fw_prim_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
             echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+            while IFS= read -r line; do
+                contam_asvs+=( "\$line" )
+            done < <(grep \${fw_prim_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
         fi
 
         echo "<br>fw prim first half \${fw_prim_firsthalf} found \$(grep \${fw_prim_firsthalf_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -128,6 +152,10 @@ process PRIMER_CONTAM_STATS {
             echo "  <summary>ASVs with the first half of the fw primer</summary>" >> ${prefix}_primer_contam_stats.txt
             echo "  <p>\$(grep \${fw_prim_firsthalf_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
             echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+            while IFS= read -r line; do
+                contam_asvs+=( "\$line" )
+            done < <(grep \${fw_prim_firsthalf_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
         fi
 
         echo "<br>fw prim second half \${fw_prim_secondhalf} found \$(grep \${fw_prim_secondhalf_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -136,6 +164,10 @@ process PRIMER_CONTAM_STATS {
             echo "  <summary>ASVs with the second half of the fw primer</summary>" >> ${prefix}_primer_contam_stats.txt
             echo "  <p>\$(grep \${fw_prim_secondhalf_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
             echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+            while IFS= read -r line; do
+                contam_asvs+=( "\$line" )
+            done < <(grep \${fw_prim_secondhalf_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
         fi
 
         echo "<br>fw prim reverse-complemented \${fw_prim_rev} found \$(grep \${fw_prim_rev_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -144,6 +176,10 @@ process PRIMER_CONTAM_STATS {
             echo "  <summary>ASVs with fw primer reversed</summary>" >> ${prefix}_primer_contam_stats.txt
             echo "  <p>\$(grep \${fw_prim_rev_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
             echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+            while IFS= read -r line; do
+                contam_asvs+=( "\$line" )
+            done < <(grep \${fw_prim_rev_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
         fi
 
         echo "<br>fw prim first half reverse-complemented \${fw_prim_firsthalf_rev} found \$(grep \${fw_prim_firsthalf_rev_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -152,6 +188,10 @@ process PRIMER_CONTAM_STATS {
             echo "  <summary>ASVs with the first half of the fw primer reversed</summary>" >> ${prefix}_primer_contam_stats.txt
             echo "  <p>\$(grep \${fw_prim_firsthalf_rev_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
             echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+            while IFS= read -r line; do
+                contam_asvs+=( "\$line" )
+            done < <(grep \${fw_prim_firsthalf_rev_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
         fi
 
         echo "<br>fw prim second half reverse-complemented \${fw_prim_secondhalf_rev} found \$(grep \${fw_prim_secondhalf_rev_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -160,6 +200,10 @@ process PRIMER_CONTAM_STATS {
             echo "  <summary>ASVs with the second half of the fw primer reversed</summary>" >> ${prefix}_primer_contam_stats.txt
             echo "  <p>\$(grep \${fw_prim_secondhalf_rev_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
             echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+            while IFS= read -r line; do
+                contam_asvs+=( "\$line" )
+            done < <(grep \${fw_prim_secondhalf_rev_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
         fi
     fi
 
@@ -190,6 +234,10 @@ process PRIMER_CONTAM_STATS {
                 echo "  <summary>ASVs with the rv primer</summary>" >> ${prefix}_primer_contam_stats.txt
                 echo "  <p>\$(grep \${rv_prim_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
                 echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+                while IFS= read -r line; do
+                    contam_asvs+=( "\$line" )
+                done < <(grep \${rv_prim_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
             fi
 
             echo "<br>rv prim first half \${rv_prim_firsthalf} found \$(grep \${rv_prim_firsthalf_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -198,6 +246,10 @@ process PRIMER_CONTAM_STATS {
                 echo "  <summary>ASVs with the first half of the rv primer</summary>" >> ${prefix}_primer_contam_stats.txt
                 echo "  <p>\$(grep \${rv_prim_firsthalf_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
                 echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+                while IFS= read -r line; do
+                    contam_asvs+=( "\$line" )
+                done < <(grep \${rv_prim_firsthalf_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
             fi
 
             echo "<br>rv prim second half \${rv_prim_secondhalf} found \$(grep \${rv_prim_secondhalf_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -206,6 +258,10 @@ process PRIMER_CONTAM_STATS {
                 echo "  <summary>ASVs with the second half of the rv primer</summary>" >> ${prefix}_primer_contam_stats.txt
                 echo "  <p>\$(grep \${rv_prim_secondhalf_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
                 echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+                while IFS= read -r line; do
+                    contam_asvs+=( "\$line" )
+                done < <(grep \${rv_prim_secondhalf_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
             fi
 
             echo "<br>rv prim reverse-complemented \${rv_prim_rev} found \$(grep \${rv_prim_rev_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -214,6 +270,10 @@ process PRIMER_CONTAM_STATS {
                 echo "  <summary>ASVs with rv primer reversed</summary>" >> ${prefix}_primer_contam_stats.txt
                 echo "  <p>\$(grep \${rv_prim_rev_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
                 echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+                while IFS= read -r line; do
+                    contam_asvs+=( "\$line" )
+                done < <(grep \${rv_prim_rev_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
             fi
 
             echo "<br>rv prim first half reverse-complemented \${rv_prim_firsthalf_rev} found \$(grep \${rv_prim_firsthalf_rev_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -222,6 +282,10 @@ process PRIMER_CONTAM_STATS {
                 echo "  <summary>ASVs with the first half of the rv primer reversed</summary>" >> ${prefix}_primer_contam_stats.txt
                 echo "  <p>\$(grep \${rv_prim_firsthalf_rev_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
                 echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+                while IFS= read -r line; do
+                    contam_asvs+=( "\$line" )
+                done < <(grep \${rv_prim_firsthalf_rev_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
             fi
 
             echo "<br>rv prim second half reverse-complemented \${rv_prim_secondhalf_rev} found \$(grep \${rv_prim_secondhalf_rev_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -230,6 +294,10 @@ process PRIMER_CONTAM_STATS {
                 echo "  <summary>ASVs with the second half of the rv primer reversed</summary>" >> ${prefix}_primer_contam_stats.txt
                 echo "  <p>\$(grep \${rv_prim_secondhalf_rev_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
                 echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+                while IFS= read -r line; do
+                    contam_asvs+=( "\$line" )
+                done < <(grep \${rv_prim_secondhalf_rev_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
             fi
         done
     else
@@ -256,6 +324,10 @@ process PRIMER_CONTAM_STATS {
             echo "  <summary>ASVs with the rv primer</summary>" >> ${prefix}_primer_contam_stats.txt
             echo "  <p>\$(grep \${rv_prim_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
             echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+            while IFS= read -r line; do
+                contam_asvs+=( "\$line" )
+            done < <(grep \${rv_prim_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
         fi
 
         echo "<br>rv prim first half \${rv_prim_firsthalf} found \$(grep \${rv_prim_firsthalf_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -264,6 +336,10 @@ process PRIMER_CONTAM_STATS {
             echo "  <summary>ASVs with the first half of the rv primer</summary>" >> ${prefix}_primer_contam_stats.txt
             echo "  <p>\$(grep \${rv_prim_firsthalf_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
             echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+            while IFS= read -r line; do
+                contam_asvs+=( "\$line" )
+            done < <(grep \${rv_prim_firsthalf_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
         fi
 
         echo "<br>rv prim second half \${rv_prim_secondhalf} found \$(grep \${rv_prim_secondhalf_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -272,6 +348,10 @@ process PRIMER_CONTAM_STATS {
             echo "  <summary>ASVs with the second half of the rv primer</summary>" >> ${prefix}_primer_contam_stats.txt
             echo "  <p>\$(grep \${rv_prim_secondhalf_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
             echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+            while IFS= read -r line; do
+                contam_asvs+=( "\$line" )
+            done < <(grep \${rv_prim_secondhalf_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
         fi
 
         echo "<br>rv prim reverse-complemented \${rv_prim_rev} found \$(grep \${rv_prim_rev_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -280,6 +360,10 @@ process PRIMER_CONTAM_STATS {
             echo "  <summary>ASVs with rv primer reversed</summary>" >> ${prefix}_primer_contam_stats.txt
             echo "  <p>\$(grep \${rv_prim_rev_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
             echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+            while IFS= read -r line; do
+                contam_asvs+=( "\$line" )
+            done < <(grep \${rv_prim_rev_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
         fi
 
         echo "<br>rv prim first half reverse-complemented \${rv_prim_firsthalf_rev} found \$(grep \${rv_prim_firsthalf_rev_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -288,6 +372,10 @@ process PRIMER_CONTAM_STATS {
             echo "  <summary>ASVs with the first half of the rv primer reversed</summary>" >> ${prefix}_primer_contam_stats.txt
             echo "  <p>\$(grep \${rv_prim_firsthalf_rev_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
             echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+            while IFS= read -r line; do
+                contam_asvs+=( "\$line" )
+            done < <(grep \${rv_prim_firsthalf_rev_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
         fi
 
         echo "<br>rv prim second half reverse-complemented \${rv_prim_secondhalf_rev} found \$(grep \${rv_prim_secondhalf_rev_pattern} ${fasta} | wc -l) times" >> ${prefix}_primer_contam_stats.txt
@@ -296,8 +384,18 @@ process PRIMER_CONTAM_STATS {
             echo "  <summary>ASVs with the second half of the rv primer reversed</summary>" >> ${prefix}_primer_contam_stats.txt
             echo "  <p>\$(grep \${rv_prim_secondhalf_rev_pattern} ${fasta} -B 1 | grep -v "\\-\\-" | sed 's/>//g') </p>" >> ${prefix}_primer_contam_stats.txt
             echo "</details>" >> ${prefix}_primer_contam_stats.txt
+
+            while IFS= read -r line; do
+                contam_asvs+=( "\$line" )
+            done < <(grep \${rv_prim_secondhalf_rev_pattern} ${fasta} -B 1 | grep ">" | grep -v "\\-\\-" | sed 's/>//g')
         fi
     fi
+
+    asvs_num=\$(echo "\${asvs[@]}" | tr ' ' '\\n' | sort | uniq | wc -l)
+    contam_asvs_num=\$(echo "\${contam_asvs[@]}" | tr ' ' '\\n' | sort | uniq | wc -l)
+    perc=\$(awk -v n=\${contam_asvs_num} -v t=\${asvs_num} 'BEGIN { printf "%.2f%%\\n", (n/t*100) }')
+
+    echo "<br>ASVs: \${asvs_num}, contaminated: \${contam_asvs_num}, percentage: \${perc}" >> ${prefix}_primer_contam_stats.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

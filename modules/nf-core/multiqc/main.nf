@@ -16,7 +16,6 @@ process MULTIQC {
 
     output:
     path "*multiqc_report.html", emit: report
-    path "*_data"              , emit: data
     path "*_plots"             , optional:true, emit: plots
     path "versions.yml"        , emit: versions
 

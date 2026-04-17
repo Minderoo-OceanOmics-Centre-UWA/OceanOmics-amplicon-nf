@@ -301,11 +301,26 @@ class DatabaseManager:
         ].copy()
 
         merged['full_species'] = merged['Genus'] + ' ' + merged['Species']
+        merged['genus_family'] = merged['Genus'] + ' ' + merged['Family']
 
         # Key: genus. value: the whole lineage
         genera_to_lineage = (
             merged.assign(Phylum="Unknown", Domain="Unknown")
             .groupby('Genus')[['Family', 'Order', 'Class', 'Phylum', 'Domain']]
+            .first()
+            .apply(lambda x: x.tolist(), axis=1)
+            .to_dict()
+        )
+        species_to_lineage = (
+            merged.assign(Phylum="Unknown", Domain="Unknown")
+            .groupby('full_species')[['Family', 'Order', 'Class', 'Phylum', 'Domain']]
+            .first()
+            .apply(lambda x: x.tolist(), axis=1)
+            .to_dict()
+        )
+        genus_family_to_lineage = (
+            merged.assign(Phylum="Unknown", Domain="Unknown")
+            .groupby('genus_family')[['Family', 'Order', 'Class', 'Phylum', 'Domain']]
             .first()
             .apply(lambda x: x.tolist(), axis=1)
             .to_dict()
@@ -322,7 +337,7 @@ class DatabaseManager:
         )
 
         self.logger.info(f"Loaded {len(genera_to_lineage)} Fishbase genera")
-        return genera_to_lineage, speccode_to_species, synonyms_to_speccode
+        return genus_family_to_lineage, species_to_lineage, genera_to_lineage, speccode_to_species, synonyms_to_speccode
 
     def load_worms_data(
         self, worms_file: Path
@@ -353,6 +368,9 @@ class DatabaseManager:
                 ]
             )
 
+            #worms_df['Species'] = worms_df['Species'].str.strip()
+            worms_df['genus_family'] = worms_df['Genus'] + ' ' + worms_df['Family']
+
             genera_to_lineage = (
                 worms_df.assign(Domain="Unknown")
                 .groupby('Genus')[
@@ -362,11 +380,46 @@ class DatabaseManager:
                 .apply(lambda x: x.tolist(), axis=1)
                 .to_dict()
             )
+            species_to_lineage = (
+                worms_df.assign(Domain="Unknown")
+                .groupby('Species')[
+                    ['Family', 'Order', 'Class', 'Phylum', 'Domain']
+                ]
+                .first()
+                .apply(lambda x: x.tolist(), axis=1)
+                .to_dict()
+            )
+            genus_family_to_lineage = (
+                worms_df.assign(Domain="Unknown")
+                .groupby('genus_family')[
+                    ['Family', 'Order', 'Class', 'Phylum', 'Domain']
+                ]
+                .first()
+                .apply(lambda x: x.tolist(), axis=1)
+                .to_dict()
+            )
 
             species_set = set(worms_df['Species'])
 
+            # Remove every character before the first Updder case character. This removes random encoding characters
+            genera_to_lineage = {
+                (key[next((i for i, c in enumerate(key) if c.isupper()), 0):] 
+                if any(c.isupper() for c in key) else key): value
+                for key, value in genera_to_lineage.items()
+            }
+            species_to_lineage = {
+                (key[next((i for i, c in enumerate(key) if c.isupper()), 0):] 
+                if any(c.isupper() for c in key) else key): value
+                for key, value in species_to_lineage.items()
+            }
+            genus_family_to_lineage = {
+                (key[next((i for i, c in enumerate(key) if c.isupper()), 0):] 
+                if any(c.isupper() for c in key) else key): value
+                for key, value in genus_family_to_lineage.items()
+            }
+
             self.logger.info(f"Loaded {len(genera_to_lineage)} WoRMS genera")
-            return genera_to_lineage, species_set
+            return genus_family_to_lineage, species_to_lineage, genera_to_lineage, species_set
 
         except Exception as e:
             self.logger.error(f"Failed to load WoRMS data: {e}")
@@ -423,6 +476,7 @@ class TaxonomicAssigner:
 
     def __init__(
         self,
+        fishbase_species: Dict,
         fishbase_genera: Dict,
         fishbase_speccode: Dict,
         fishbase_synonyms: Dict,
@@ -430,6 +484,7 @@ class TaxonomicAssigner:
         worms_species: Set,
         db_manager: DatabaseManager
     ):
+        self.fishbase_species = fishbase_species
         self.fishbase_genera = fishbase_genera
         self.fishbase_speccode = fishbase_speccode
         self.fishbase_synonyms = fishbase_synonyms
@@ -451,49 +506,57 @@ class TaxonomicAssigner:
         Returns:
             Tuple of (genus, species, source, lineage) or None if not found
         """
+        lineage_ncbi = False
+        if taxid:
+            lineage_ncbi = self._search_ncbi(taxid)
+
+            if lineage_ncbi.phylum == 'Chordata':
+                check_fishbase = True
+            else:
+                check_fishbase = False
+        else:
+            check_fishbase = True
+
         # Fishbase comes first,
-        genus, species, lineage = self._search_fishbase(line_elements)
-        if genus:
-            # We want Teleostei to have the Actinopteri label
-            if (lineage.class_name == 'Teleostei'):
-                lineage.class_name = 'Actinopteri'
+        if check_fishbase:
+            genus, species, lineage = self._search_fishbase(line_elements)
+            if genus:
+                # We want Teleostei to have the Actinopteri label
+                if (lineage.class_name == 'Teleostei'):
+                    lineage.class_name = 'Actinopteri'
 
-            # Try to get the domain/phylum info from ncbi
-            if taxid:
-                lineage_ncbi = self._search_ncbi(taxid)
-                if lineage_ncbi:
-                    lineage.domain = lineage_ncbi.domain
-                    lineage.phylum = lineage_ncbi.phylum
-                    return genus, species, 'fishbase', lineage
+                # Try to get the domain/phylum info from ncbi
+                if taxid:
+                    if lineage_ncbi:
+                        lineage.domain = lineage_ncbi.domain
+                        lineage.phylum = lineage_ncbi.phylum
+                        return genus, species, 'fishbase', lineage
+                    else:
+                        return genus, species, 'fishbase', lineage
+
                 else:
                     return genus, species, 'fishbase', lineage
 
-            else:
-                return genus, species, 'fishbase', lineage
+            # then WoRMs,
+            genus, species, lineage = self._search_worms(line_elements)
+            if genus:
+                # Try to get the domain/phylum info from ncbi
+                if taxid:
+                    if lineage_ncbi:
+                        lineage.domain = lineage_ncbi.domain
+                        lineage.phylum = lineage_ncbi.phylum
+                        return genus, species, 'worms', lineage
+                    else:
+                        return genus, species, 'worms', lineage
 
-        # then WoRMs,
-        genus, species, lineage = self._search_worms(line_elements)
-        if genus:
-            # Try to get the domain/phylum info from ncbi
-            if taxid:
-                lineage_ncbi = self._search_ncbi(taxid)
-                if lineage_ncbi:
-                    lineage.domain = lineage_ncbi.domain
-                    lineage.phylum = lineage_ncbi.phylum
-                    return genus, species, 'worms', lineage
                 else:
                     return genus, species, 'worms', lineage
-
-            else:
-                return genus, species, 'worms', lineage
 
         # and lastly, NCBI Taxonomy via the taxid
-        if taxid:
-            lineage = self._search_ncbi(taxid)
-            if lineage:
-                genus = lineage.genus
-                species = lineage.species
-                return genus, species, 'ncbi', lineage
+        if lineage_ncbi:
+            genus = lineage_ncbi.genus
+            species = lineage_ncbi.species
+            return genus, species, 'ncbi', lineage_ncbi
 
         return None
 
@@ -504,6 +567,7 @@ class TaxonomicAssigner:
         # Direct genus match
         for i, element in enumerate(elements[:-1]):
             if element in self.fishbase_genera:
+                #exit(elements)
                 genus = element
                 species_part = elements[i + 1]
                 family, order, class_name, phylum, domain = self.fishbase_genera[genus]
@@ -646,18 +710,20 @@ class BLASTLCAAnalyzer:
     def load_databases(self, worms_file: Optional[Path] = None):
         """Load all required databases."""
         # Load Fishbase data
-        fishbase_genera, fishbase_speccode, fishbase_synonyms = (
+        fishbase_genus_family, fishbase_species, fishbase_genera, fishbase_speccode, fishbase_synonyms = (
             self.db_manager.load_fishbase_data()
         )
+        #exit(fishbase_genera)
 
         # Load WoRMS data
-        worms_genera, worms_species = self.db_manager.load_worms_data(
-            worms_file or Path("worms_species.txt.gz")
+        worms_genus_family, worms_full_species, worms_genera, worms_species = self.db_manager.load_worms_data(
+            worms_file
         )
         # Load NCBI
         self.db_manager.load_ncbi_taxdump()
 
         self.assigner = TaxonomicAssigner(
+            fishbase_species,
             fishbase_genera,
             fishbase_speccode,
             fishbase_synonyms,
@@ -942,7 +1008,7 @@ class BLASTLCAAnalyzer:
                                 'percent_query_cover': qcov,
                                 'confidence_score': evalue,
                                 'identificationRemarks': "The Lowest Common Ancestor script used is found here https://github.com/Computational-Biology-OceanOmics/LCA_With_Fishbase",
-                                str(seq_type) + '_length': str(len(dna_seq))
+                                'length': str(len(dna_seq))
                             }
                         )
                     i += 1
@@ -965,7 +1031,7 @@ class BLASTLCAAnalyzer:
                 'genus': genus_lca.assignment,
                 'species': species_lca.assignment,
                 'OTU': asv_name,
-                str(seq_type) + '_length': str(len(dna_seq)),
+                'length': str(len(dna_seq)),
                 'numberOfUnq_BlastHits': i,
                 '%ID': top_pident,
                 'queryCoverage': top_qcov,
@@ -1041,7 +1107,7 @@ class BLASTLCAAnalyzer:
                     'percent_query_cover': top_qcov,
                     'confidence_score': top_evalue,
                     'identificationRemarks': "The Lowest Common Ancestor script used is found here https://github.com/Computational-Biology-OceanOmics/LCA_With_Fishbase",
-                    str(seq_type) + '_length': str(len(dna_seq))
+                    'length': str(len(dna_seq))
                 }
             )
 

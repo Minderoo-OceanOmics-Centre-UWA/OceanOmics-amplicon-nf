@@ -669,7 +669,7 @@ workflow OCEANOMICS_AMPLICON {
 
             ch_lca_out = LCA_WITH_FISHBASE.out.lca_output
             ch_taxa_raw = LCA_WITH_FISHBASE.out.taxa_raw
-            ch_taxa_final = LCA_WITH_FISHBASE.out.taxa_final
+            ch_taxa_pre_final = LCA_WITH_FISHBASE.out.taxa_final
 
         } else {
             ch_lca_input = ch_curated_table.join(ch_blast_results.join(ch_fasta))
@@ -689,7 +689,7 @@ workflow OCEANOMICS_AMPLICON {
 
             ch_lca_out = REMOVE_DUPS.out.tsv
             ch_taxa_raw = LCA.out.taxa_raw
-            ch_taxa_final = LCA.out.taxa_final
+            ch_taxa_pre_final = LCA.out.taxa_final
         }
 
         //
@@ -714,12 +714,14 @@ workflow OCEANOMICS_AMPLICON {
         ch_phyloseq_input = ch_otu_table.join(ch_lca_out.join(OCOMNBC.out.nbc_output))
         if (params.masterlist) {
             ADD_BACK_MASTERLIST (
-                ch_phyloseq_input,
+                ch_phyloseq_input.join(ch_taxa_pre_final),
                 FILT_WITH_MASTERLIST.out.removed_seqs
             )
             ch_phyloseq_input_updated = ADD_BACK_MASTERLIST.out.tsv
+            ch_taxa_final = ADD_BACK_MASTERLIST.out.taxa_final
         } else {
             ch_phyloseq_input_updated = ch_phyloseq_input
+            ch_taxa_final = ch_taxa_pre_final
         }
 
         //

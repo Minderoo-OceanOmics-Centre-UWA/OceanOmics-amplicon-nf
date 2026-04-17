@@ -94,6 +94,24 @@ process CREATE_FAIRE_METADATA {
                 }
             }
 
+            if ("length" %in% full_taxa_table) {
+                new_row[["length"]] <- full_taxa_table[full_taxa_table[[upper_prefix]] == id, "length"]
+            }
+            if (! "length" %in% new_row) {
+                if ("length" %in% taxa_raw) {
+                    new_row[["length"]] <- taxa_raw[taxa_raw[[upper_prefix]] == id, "length"]
+                } else {
+                    taxa_raw[["length"]] <- NULL
+                }
+            }
+            if (! "length" %in% new_row) {
+                if ("length" %in% taxa_final) {
+                    new_row[["length"]] <- taxa_final[taxa_final[[upper_prefix]] == id, "length"]
+                } else {
+                    taxa_final[["length"]] <- NULL
+                }
+            }
+
             taxa_raw <- rbind(taxa_raw, new_row)
             new_row\$unusual_size <- full_taxa_table[full_taxa_table[[upper_prefix]] == id, "unusual_size"]
             taxa_final <- rbind(taxa_final, new_row)

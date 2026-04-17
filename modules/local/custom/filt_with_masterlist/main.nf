@@ -9,7 +9,7 @@ process FILT_WITH_MASTERLIST {
     path(masterlist)
 
     output:
-    tuple val(prefix), path("no_masterlist_seqs_*"), emit: fasta
+    tuple val(prefix), path("non_masterlist_seqs_*"), emit: fasta
     tuple val(prefix), path("removed_seqs_*")      , emit: removed_seqs
 
     when:
@@ -18,7 +18,7 @@ process FILT_WITH_MASTERLIST {
     script:
     """
     cat ${masterlist} | grep -v '>' > seqs.txt
-    seqkit grep -v -s -f seqs.txt ${fasta} > no_masterlist_seqs_${fasta}
+    seqkit grep -v -s -f seqs.txt ${fasta} > non_masterlist_seqs_${fasta}
     seqkit grep -s -f seqs.txt ${fasta} > tmp_${fasta}
     cat tmp_${fasta} | grep -v '>' > tmp_seqs.txt
     seqkit grep -s -f tmp_seqs.txt ${masterlist} > removed_seqs_${fasta}

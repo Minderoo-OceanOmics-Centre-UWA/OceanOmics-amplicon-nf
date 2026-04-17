@@ -15,6 +15,7 @@ All the parameters in the pipeline can be set in a config file, or they can be s
 - [filter_table](#filter_table) - Optional .csv file to filter out unwanted taxa. First column should be called `level`, and second column should be called `name`. For example, one row might have domain in the `level` column and Bacteria in the `name` column.
 - [fw_primer](#fw_primer) - Your forward primer. Can be a semi-colon seperated list of primers.
 - [rv_primer](#rv_primer) - Your reverse primer. Can be a semi-colon seperated list of primers.
+- [masterlist](#masterlist) - an optional fasta file of ASVs/zOTUs that have already been classified. Header should have taxonomy separated with semi-colons (e.g., >Eukaryota;Chordata;Actinopteri;Eupercaria;Scaridae;Scarus;dropped)
 
 ### Parameters to automate choosing other parameters
 

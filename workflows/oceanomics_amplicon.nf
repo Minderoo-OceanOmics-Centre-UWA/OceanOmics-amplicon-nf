@@ -424,14 +424,14 @@ workflow OCEANOMICS_AMPLICON {
             ch_curated_table = ch_curated_table
                 .map {
                     prefix, table ->
-                    prefix = prefix + "_blast_lulucurated"
+                    prefix = prefix + "_db1_lulucurated"
                     return [ prefix, table ]
                 }
                 .mix(
                     ch_curated_table
                     .map {
                         prefix, table ->
-                        prefix = prefix + "_blast2_lulucurated"
+                        prefix = prefix + "_db2_lulucurated"
                         return [ prefix, table ]
                     }
                 )
@@ -445,14 +445,14 @@ workflow OCEANOMICS_AMPLICON {
             ch_curated_table = ch_curated_table
                 .map {
                     prefix, table ->
-                    prefix = prefix + "_blast_lulucurated"
+                    prefix = prefix + "_db1_lulucurated"
                     return [ prefix, table ]
                 }
                 .mix(
                     ch_curated_table
                     .map {
                         prefix, table ->
-                        prefix = prefix + "_blast2_lulucurated"
+                        prefix = prefix + "_db2_lulucurated"
                         return [ prefix, table ]
                     }
                 )
@@ -460,7 +460,7 @@ workflow OCEANOMICS_AMPLICON {
                     ch_lca_input_table
                     .map {
                         prefix, table ->
-                        prefix = prefix + "_blast"
+                        prefix = prefix + "_db1"
                         return [ prefix, table ]
                     }
                 )
@@ -468,7 +468,7 @@ workflow OCEANOMICS_AMPLICON {
                     ch_lca_input_table
                     .map {
                         prefix, table ->
-                        prefix = prefix + "_blast2"
+                        prefix = prefix + "_db2"
                         return [ prefix, table ]
                     }
                 )
@@ -477,14 +477,14 @@ workflow OCEANOMICS_AMPLICON {
         ch_curated_table = ch_lca_input_table
             .map {
                 prefix, table ->
-                prefix = prefix + "_blast"
+                prefix = prefix + "_db1"
                 return [ prefix, table ]
             }
             .mix(
                 ch_lca_input_table
                 .map {
                     prefix, table ->
-                    prefix = prefix + "_blast2"
+                    prefix = prefix + "_db2"
                     return [ prefix, table ]
                 }
             )
@@ -519,43 +519,43 @@ workflow OCEANOMICS_AMPLICON {
             ch_preconcat_blast = BLAST_BLASTN.out.txt.groupTuple()
                 .map {
                     prefix, table ->
-                    prefix = prefix + "_blast"
+                    prefix = prefix + "_db1"
                     return [ prefix, table ]
                 }
             ch_preconcat_blast_default = BLAST_BLASTN.out.default_format.groupTuple()
                 .map {
                     prefix, table ->
-                    prefix = prefix + "_blast_default_format"
+                    prefix = prefix + "_db1_default_format"
                     return [ prefix, table ]
                 }
             ch_curated_fasta = ch_curated_fasta
                 .map {
                     prefix, fasta ->
-                    prefix = prefix + "_blast"
+                    prefix = prefix + "_db1"
                     return [ prefix, fasta ]
                 }
             ch_fasta = ch_fasta
                 .map {
                     prefix, fasta ->
-                    prefix = prefix + "_blast"
+                    prefix = prefix + "_db1"
                     return [ prefix, fasta ]
                 }
             //ch_curated_table = ch_curated_table
             //    .map {
             //        prefix, table ->
-            //        prefix = prefix + "_blast"
+            //        prefix = prefix + "_db1"
             //        return [ prefix, table ]
             //    }
             ch_otu_table = ch_otu_table
                 .map {
                     prefix, table ->
-                    prefix = prefix + "_blast"
+                    prefix = prefix + "_db1"
                     return [ prefix, table ]
                 }
             ch_lca_input_table = ch_lca_input_table
                 .map {
                     prefix, table ->
-                    prefix = prefix + "_blast"
+                    prefix = prefix + "_db1"
                     return [ prefix, table ]
                 }
 
@@ -569,7 +569,7 @@ workflow OCEANOMICS_AMPLICON {
                     BLAST_BLASTN2.out.txt.groupTuple()
                     .map {
                         prefix, table ->
-                        prefix = prefix + "_blast2"
+                        prefix = prefix + "_db2"
                         return [ prefix, table ]
                     }
                 )
@@ -577,7 +577,7 @@ workflow OCEANOMICS_AMPLICON {
                     BLAST_BLASTN2.out.txt.groupTuple()
                     .map {
                         prefix, table ->
-                        prefix = prefix + "_blast2_default_format"
+                        prefix = prefix + "_db2_default_format"
                         return [ prefix, table ]
                     }
                 )

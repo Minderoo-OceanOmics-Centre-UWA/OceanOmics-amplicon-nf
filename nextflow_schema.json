@@ -78,7 +78,7 @@
                     "description": "The reverse primer. This will get checked in both normal and reverse orientation",
                     "default": "CGCTGTTATCCCTADRGTAACT"
                 },
-                "input": {
+                "masterlist": {
                     "type": "string",
                     "format": "file-path",
                     "description": "an optional fasta file of ASVs/zOTUs that have already been classified. Header should have taxonomy separated with semi-colons (e.g., >Eukaryota;Chordata;Actinopteri;Eupercaria;Scaridae;Scarus;dropped)"

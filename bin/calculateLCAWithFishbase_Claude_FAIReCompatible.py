@@ -510,7 +510,40 @@ class TaxonomicAssigner:
         if taxid:
             lineage_ncbi = self._search_ncbi(taxid)
 
-            if lineage_ncbi.phylum == 'Chordata':
+            animalia_phylums = [
+                "Acanthocephala",
+                "Annelida",
+                "Arthropoda",
+                "Brachiopoda",
+                "Bryozoa",
+                "Chaetognatha",
+                "Chordata",
+                "Cnidaria",
+                "Ctenophora",
+                "Cycliophora",
+                "Dicyemida",
+                "Echinodermata",
+                "Entoprocta",
+                "Gastrotricha",
+                "Gnathostomulida",
+                "Hemichordata",
+                "Kinorhyncha",
+                "Loricifera",
+                "Mollusca",
+                "Nematoda",
+                "Nematomorpha",
+                "Nemertea",
+                "Orthonectida",
+                "Phoronida",
+                "Placozoa",
+                "Platyhelminthes",
+                "Porifera",
+                "Priapulida",
+                "Rotifera",
+                "Tardigrada",
+                "Xenacoelomorpha"
+            ]
+            if lineage_ncbi.phylum in animalia_phylums:
                 check_fishbase = True
             else:
                 check_fishbase = False

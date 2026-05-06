@@ -132,7 +132,9 @@ if (!params.skip_demux && !params.start_from_blast && !params.start_from_lca) {
     if (params.raw_data) {
         ch_raw_data = Channel.fromFilePairs(params.raw_data, checkIfExists: true)
     } else {
-        exit 1, 'Raw data not specified!'
+        if (! params.alt_demux) {
+            exit 1, 'Raw data not specified!'
+        }
     }
 
     if (params.ulimit) {
@@ -174,11 +176,13 @@ include { SEQKIT_STATS as FINAL_STATS                            } from '../modu
 include { SEQTK_TRIM                                             } from '../modules/local/seqtk/trim/main.nf'
 include { FASTP                                                  } from '../modules/local/fastp/main.nf'
 include { CUTADAPT_WORKFLOW                                      } from '../subworkflows/local/cutadapt_workflow'
+include { ALT_CUTADAPT_WORKFLOW                                  } from '../subworkflows/local/alt_cutadapt_workflow'
 include { ASV_WORKFLOW                                           } from '../subworkflows/local/asv_workflow'
 include { INPUT_CHECK                                            } from '../subworkflows/local/input_check'
 include { LULU_WORKFLOW                                          } from '../subworkflows/local/lulu_workflow'
 include { ZOTU_WORKFLOW                                          } from '../subworkflows/local/zotu_workflow'
 include { POSTDEMUX_WORKFLOW                                     } from '../subworkflows/local/postdemux_workflow'
+include { ALT_POSTDEMUX_WORKFLOW                                 } from '../subworkflows/local/alt_postdemux_workflow'
 include { CUSTOM_DUMPSOFTWAREVERSIONS                            } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { FASTQC                                                 } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                                                } from '../modules/nf-core/multiqc/main'
@@ -215,29 +219,54 @@ workflow OCEANOMICS_AMPLICON {
     // SUBWORKFLOW: Demultiplex with cutadapt
     //
     if (!params.skip_demux && !params.start_from_blast && !params.start_from_lca) {
-        CUTADAPT_WORKFLOW (
-            ch_input,
-            ch_raw_data,
-            ch_ulimit
-        )
-        ch_versions = ch_versions.mix(CUTADAPT_WORKFLOW.out.versions)
+        if (params.alt_demux) {
+            ALT_CUTADAPT_WORKFLOW (
+                ch_input,
+                ch_ulimit,
+                INPUT_CHECK.out.reads
+            )
+            ch_versions = ch_versions.mix(ALT_CUTADAPT_WORKFLOW.out.versions)
 
-        ch_demux_reads              = CUTADAPT_WORKFLOW.out.reads
-        ch_raw_stats                = CUTADAPT_WORKFLOW.out.raw_stats
-        ch_raw_stats_collected      = ch_raw_stats.map{ it = it[1] }.collect()
-        ch_assigned_stats           = CUTADAPT_WORKFLOW.out.assigned_stats
-        ch_assigned_stats_collected = ch_assigned_stats.map{ it = it[1] }.collect()
+            ch_demux_reads              = ALT_CUTADAPT_WORKFLOW.out.reads
+            ch_raw_stats_collected      = []
+            ch_assigned_stats_collected      = []
+            //ch_assigned_stats           = ALT_CUTADAPT_WORKFLOW.out.assigned_stats
+            //ch_assigned_stats_collected = ch_assigned_stats.map{ it = it[1] }.collect()
 
-        POSTDEMUX_WORKFLOW (
-            ch_demux_reads,
-            ch_input,
-            ch_raw_data
-        )
-        ch_versions = ch_versions.mix(POSTDEMUX_WORKFLOW.out.versions)
+            ALT_POSTDEMUX_WORKFLOW (
+                ch_demux_reads,
+                ch_input
+            )
+            ch_versions = ch_versions.mix(ALT_POSTDEMUX_WORKFLOW.out.versions)
 
-        ch_reads   = POSTDEMUX_WORKFLOW.out.reads
-        ch_missing = POSTDEMUX_WORKFLOW.out.missing_samples
-        ch_input   = POSTDEMUX_WORKFLOW.out.samplesheet
+            ch_reads   = ALT_POSTDEMUX_WORKFLOW.out.reads
+            ch_missing = [[]]
+            ch_input   = ALT_POSTDEMUX_WORKFLOW.out.samplesheet
+        } else {
+            CUTADAPT_WORKFLOW (
+                ch_input,
+                ch_raw_data,
+                ch_ulimit
+            )
+            ch_versions = ch_versions.mix(CUTADAPT_WORKFLOW.out.versions)
+
+            ch_demux_reads              = CUTADAPT_WORKFLOW.out.reads
+            ch_raw_stats                = CUTADAPT_WORKFLOW.out.raw_stats
+            ch_raw_stats_collected      = ch_raw_stats.map{ it = it[1] }.collect()
+            ch_assigned_stats           = CUTADAPT_WORKFLOW.out.assigned_stats
+            ch_assigned_stats_collected = ch_assigned_stats.map{ it = it[1] }.collect()
+
+            POSTDEMUX_WORKFLOW (
+                ch_demux_reads,
+                ch_input,
+                ch_raw_data
+            )
+            ch_versions = ch_versions.mix(POSTDEMUX_WORKFLOW.out.versions)
+
+            ch_reads   = POSTDEMUX_WORKFLOW.out.reads
+            ch_missing = POSTDEMUX_WORKFLOW.out.missing_samples
+            ch_input   = POSTDEMUX_WORKFLOW.out.samplesheet
+        }
 
     } else {
         ch_reads                    = INPUT_CHECK.out.reads
@@ -247,7 +276,7 @@ workflow OCEANOMICS_AMPLICON {
         ch_input                    = Channel.of(ch_input)
     }
 
-    if (!params.start_from_blast && !params.start_from_lca) {
+    if ((!params.start_from_blast && !params.start_from_lca) || params.faire_mode) {
         GET_PRIMERFILES (
             params.fw_primer,
             params.rv_primer
@@ -424,14 +453,14 @@ workflow OCEANOMICS_AMPLICON {
             ch_curated_table = ch_curated_table
                 .map {
                     prefix, table ->
-                    prefix = prefix + "_db1_lulucurated"
+                    prefix = prefix + "_" + params.dbname + "_lulucurated"
                     return [ prefix, table ]
                 }
                 .mix(
                     ch_curated_table
                     .map {
                         prefix, table ->
-                        prefix = prefix + "_db2_lulucurated"
+                        prefix = prefix + "_" + params.db2name + "_lulucurated"
                         return [ prefix, table ]
                     }
                 )
@@ -445,14 +474,14 @@ workflow OCEANOMICS_AMPLICON {
             ch_curated_table = ch_curated_table
                 .map {
                     prefix, table ->
-                    prefix = prefix + "_db1_lulucurated"
+                    prefix = prefix + "_" + params.dbname + "_lulucurated"
                     return [ prefix, table ]
                 }
                 .mix(
                     ch_curated_table
                     .map {
                         prefix, table ->
-                        prefix = prefix + "_db2_lulucurated"
+                        prefix = prefix + "_" + params.db2name + "_lulucurated"
                         return [ prefix, table ]
                     }
                 )
@@ -460,7 +489,7 @@ workflow OCEANOMICS_AMPLICON {
                     ch_lca_input_table
                     .map {
                         prefix, table ->
-                        prefix = prefix + "_db1"
+                        prefix = prefix + "_" + params.dbname
                         return [ prefix, table ]
                     }
                 )
@@ -468,7 +497,7 @@ workflow OCEANOMICS_AMPLICON {
                     ch_lca_input_table
                     .map {
                         prefix, table ->
-                        prefix = prefix + "_db2"
+                        prefix = prefix + "_" + params.db2name
                         return [ prefix, table ]
                     }
                 )
@@ -477,14 +506,14 @@ workflow OCEANOMICS_AMPLICON {
         ch_curated_table = ch_lca_input_table
             .map {
                 prefix, table ->
-                prefix = prefix + "_db1"
+                prefix = prefix + "_" + params.dbname
                 return [ prefix, table ]
             }
             .mix(
                 ch_lca_input_table
                 .map {
                     prefix, table ->
-                    prefix = prefix + "_db2"
+                    prefix = prefix + "_" + params.db2name
                     return [ prefix, table ]
                 }
             )
@@ -519,43 +548,43 @@ workflow OCEANOMICS_AMPLICON {
             ch_preconcat_blast = BLAST_BLASTN.out.txt.groupTuple()
                 .map {
                     prefix, table ->
-                    prefix = prefix + "_db1"
+                    prefix = prefix + "_" + params.dbname
                     return [ prefix, table ]
                 }
             ch_preconcat_blast_default = BLAST_BLASTN.out.default_format.groupTuple()
                 .map {
                     prefix, table ->
-                    prefix = prefix + "_db1_default_format"
+                    prefix = prefix + "_" + params.dbname + "_default_format"
                     return [ prefix, table ]
                 }
             ch_curated_fasta = ch_curated_fasta
                 .map {
                     prefix, fasta ->
-                    prefix = prefix + "_db1"
+                    prefix = prefix + "_" + params.dbname
                     return [ prefix, fasta ]
                 }
             ch_fasta = ch_fasta
                 .map {
                     prefix, fasta ->
-                    prefix = prefix + "_db1"
+                    prefix = prefix + "_" + params.dbname
                     return [ prefix, fasta ]
                 }
             //ch_curated_table = ch_curated_table
             //    .map {
             //        prefix, table ->
-            //        prefix = prefix + "_db1"
+            //        prefix = prefix + "_" + params.dbname
             //        return [ prefix, table ]
             //    }
             ch_otu_table = ch_otu_table
                 .map {
                     prefix, table ->
-                    prefix = prefix + "_db1"
+                    prefix = prefix + "_" + params.dbname
                     return [ prefix, table ]
                 }
             ch_lca_input_table = ch_lca_input_table
                 .map {
                     prefix, table ->
-                    prefix = prefix + "_db1"
+                    prefix = prefix + "_" + params.dbname
                     return [ prefix, table ]
                 }
 
@@ -569,7 +598,7 @@ workflow OCEANOMICS_AMPLICON {
                     BLAST_BLASTN2.out.txt.groupTuple()
                     .map {
                         prefix, table ->
-                        prefix = prefix + "_db2"
+                        prefix = prefix + "_" + params.db2name
                         return [ prefix, table ]
                     }
                 )
@@ -577,7 +606,7 @@ workflow OCEANOMICS_AMPLICON {
                     BLAST_BLASTN2.out.txt.groupTuple()
                     .map {
                         prefix, table ->
-                        prefix = prefix + "_db2_default_format"
+                        prefix = prefix + "_" + params.db2name + "_default_format"
                         return [ prefix, table ]
                     }
                 )
@@ -799,7 +828,7 @@ workflow OCEANOMICS_AMPLICON {
     //
     // MODULE: Create metadata in FAIRe format
     //
-    if (params.faire_mode && !params.start_from_blast && !params.start_from_lca) {
+    if (params.faire_mode) {
         if (! params.skip_lulu) {
             if (params.skip_lulu_comparison) {
                 ch_lca_input_table = ch_lca_input_table
@@ -835,7 +864,7 @@ workflow OCEANOMICS_AMPLICON {
             ch_input.collect(), //
             PREFILTERING_STATS.out.stats.collect(), //
             params.assay,
-            //INPUTFILE_INFO.out.csv.map{ it = it[1] }.collect()
+            params.seq_run_id,
             CONCATFILE_INFO.out.csv.collect() //
         )
 

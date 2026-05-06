@@ -46,8 +46,12 @@ process CREATE_FAIRE_METADATA {
     otu_final <- read.table(${otu_final}, sep = "\\t", header = TRUE, stringsAsFactors = FALSE, quote="", comment.char="")
     full_taxa_table <- read.table(${full_taxa_table}, sep = "\\t", header = TRUE, stringsAsFactors = FALSE, quote="", comment.char="")
 
-    upper_prefix <- toupper(${prefix})
-    upper_prefix <- strsplit(upper_prefix, split = "_")[[1]][1]
+    if ("ASV" %in% colnames(full_taxa_table)) {
+        upper_prefix = "ASV"
+    } else {
+        upper_prefix = "ZOTU"
+    }
+
     all_ids <- full_taxa_table[, upper_prefix]
 
     subset_ids <- unique(taxa_raw[, "seq_id"])

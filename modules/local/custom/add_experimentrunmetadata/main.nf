@@ -14,6 +14,7 @@ process ADD_EXPERIMENTRUNMETADATA {
     path(samplesheet)
     tuple val(var), path(prefilter_stats)
     val(assay)
+    val(seq_run_id)
     path(inputfile_info)
 
     output:
@@ -31,6 +32,7 @@ process ADD_EXPERIMENTRUNMETADATA {
     def phyloseq = "\"${phyloseq}\""
     def prefilter_stats = "\"${prefilter_stats}\""
     def assay = "\"${assay}\""
+    def seq_run_id = "\"${seq_run_id}\""
     def inputfile_info = "\"${inputfile_info}\""
     """
     #!/usr/bin/env Rscript
@@ -57,7 +59,8 @@ process ADD_EXPERIMENTRUNMETADATA {
     sampsheet    <- read.csv(${samplesheet}, header=TRUE, quote="")
     seqkit_stats <- read.table(${prefilter_stats}, header=TRUE, quote="")
     faire_meta   <- read_excel(${metadata}, sheet="sampleMetadata")
-    assay        <- ""
+    assay        <- ${assay}
+    seq_run_id   <- ${seq_run_id}
 
     # Skip non header rows
     continue = TRUE
@@ -97,9 +100,14 @@ process ADD_EXPERIMENTRUNMETADATA {
         numrows         <- nrow(faire_meta)
         samp_name       <- faire_meta\$samp_name
         assay           <- rep(assay, numrows)
-        pcr_plate_id    <- rep("", numrows)
+        if ("pcr_plate_id" %in% colnames(sampsheet)) {
+            pcr_plate_id    <- sampsheet\$pcr_plate_id
+        }  else {
+            pcr_plate_id    <- rep("", numrows)
+        }
+
         lib_id          <- fileinfo\$lib_id
-        seq_run_id      <- rep("", numrows)
+        seq_run_id      <- rep(seq_run_id, numrows)
         lib_conc        <- rep("", numrows)
         lib_conc_unit   <- rep("", numrows)
         lib_conc_method <- rep("", numrows)

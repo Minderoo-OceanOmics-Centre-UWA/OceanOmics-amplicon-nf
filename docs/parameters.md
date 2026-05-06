@@ -16,11 +16,11 @@ All the parameters in the pipeline can be set in a config file, or they can be s
 - [fw_primer](#fw_primer) - Your forward primer. Can be a semi-colon seperated list of primers.
 - [rv_primer](#rv_primer) - Your reverse primer. Can be a semi-colon seperated list of primers.
 - [masterlist](#masterlist) - an optional fasta file of ASVs/zOTUs that have already been classified. Header should have taxonomy separated with semi-colons (e.g., >Eukaryota;Chordata;Actinopteri;Eupercaria;Scaridae;Scarus;dropped)
-
-### Parameters to automate choosing other parameters
-
 - [assay](#assay) - The assay of your data if you want certain parameters chosen automatically. The assay will also be added to filenames. Currently supports `16SFish`, `16SMam`, `MiFish`, `12SV5`, and `COILeray`. The `-c` option can be used to provide a custom map with other assays. More information can be found [here](https://github.com/MinderooFoundation/OceanOmics-amplicon-nf/blob/master/docs/custom_config.md)
 - [project_id](#project_id) - The project ID will be added to filenames.
+- [seq_run_id](#seq_run_id) - The ID of the sequencing run that your data is from. This will be added to the FAIRe metadata file
+- [dbname](#dbname) - The name of your database. This will be added to the output file names.
+- [db2name](#db2name) - The name of your second database if you're using --blast_twice.
 
 ### Demultiplex parameters
 
@@ -29,6 +29,7 @@ All the parameters in the pipeline can be set in a config file, or they can be s
 - [cutadapt_min_len](#cutadapt_min_len) - default = 1
 - [ulimit](#ulimit) - Increase this value if you run into a 'Too many open files error' during Cutadapt; default = 40000
 - [demux_udi](#demux_udi) - Demultiplex unique dual-indexes (The default method assumes unique combinatorial indexes)
+- [alt_demux](#alt_demux) - Activate the alternative demultiplex method. This method requires your sample sheet contains the demux indexes and the paths to the fastq files. This is useful for when your reads are already in separate files, but you still have demux indexes to trim off. Reads missing the indexes will be discarded.
 
 ### FAIRe parameters
 

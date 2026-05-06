@@ -29,8 +29,24 @@ def create_fastq_channel(LinkedHashMap row) {
     meta.single_end = row.single_end.toBoolean()
     boolean skip_demux = params.skip_demux.toBoolean()
 
-    // add index/primer info of the sample(s) to the meta map
-    if (!skip_demux) {
+    if ((params.start_from_blast || params.start_from_lca) && params.faire_mode) {
+        // add path(s) of the fastq file(s) to the meta map
+        assert file(row.fastq_1).exists() : "ERROR: Please check input samplesheet -> Read 1 FastQ file does not exist!\n${row.fastq_1}\nSample: ${meta.id}"
+
+        if (meta.single_end) {
+            fastq_meta = [ meta, [ file(row.fastq_1) ] ]
+
+        } else {
+            assert file(row.fastq_2).exists() : "ERROR: Please check input samplesheet -> Read 2 FastQ file does not exist!\n${row.fastq_2}"
+
+            fastq_meta = [ meta, [ file(row.fastq_1), file(row.fastq_2) ] ]
+        }
+
+        return fastq_meta
+        
+    } else if (!skip_demux) {
+        // add index/primer info of the sample(s) to the meta map
+        
         assert row.fw_index != null : "ERROR: Please check input samplesheet -> 'fw_index' is mandatory if not using '--skip_demux' option!\n${meta.id} is missing 'fw_index'"
 
         meta.fw_index   = row.fw_index
@@ -44,7 +60,23 @@ def create_fastq_channel(LinkedHashMap row) {
             meta.rv_index   = row.rv_index
         }
 
-        return meta
+        if (params.alt_demux) {
+            // add path(s) of the fastq file(s) to the meta map
+            assert file(row.fastq_1).exists() : "ERROR: Please check input samplesheet -> Read 1 FastQ file does not exist!\n${row.fastq_1}\nSample: ${meta.id}"
+
+            if (meta.single_end) {
+                fastq_meta = [ meta, [ file(row.fastq_1) ] ]
+
+            } else {
+                assert file(row.fastq_2).exists() : "ERROR: Please check input samplesheet -> Read 2 FastQ file does not exist!\n${row.fastq_2}"
+
+                fastq_meta = [ meta, [ file(row.fastq_1), file(row.fastq_2) ] ]
+            }
+
+            return fastq_meta
+        } else {
+            return meta
+        }
 
     } else {
         // add path(s) of the fastq file(s) to the meta map

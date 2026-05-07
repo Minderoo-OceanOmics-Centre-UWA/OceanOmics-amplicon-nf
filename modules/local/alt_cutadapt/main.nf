@@ -1,5 +1,5 @@
 process ALT_CUTADAPT {
-    tag "$prefix"
+    tag "$meta.id"
     label 'process_medium'
     container 'quay.io/biocontainers/cutadapt:4.7--py310h4b81fae_1'
 
@@ -22,6 +22,11 @@ process ALT_CUTADAPT {
 
     # Too avoid too many open files error:
     ulimit -S -n ${ulimit}
+
+    echo ${meta.id} > out.txt
+    echo ${meta.fw_index} >> out.txt
+    echo ${meta.rv_index} >> out.txt
+    echo ${reads} >> out.txt
 
     files=($reads)
     if [ "\${#files[@]}" -eq 1 ]; then

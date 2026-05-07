@@ -21,7 +21,7 @@ workflow ALT_CUTADAPT_WORKFLOW {
 
     main:
     ch_versions = Channel.empty()
-    ch_reads.view()
+    //ch_reads.view()
 
     // MODULE: Demultiplex
     ALT_CUTADAPT (

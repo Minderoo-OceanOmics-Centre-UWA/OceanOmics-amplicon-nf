@@ -2,8 +2,8 @@
 // Create a new channel after demultiplexing in the correct nf-core format
 //
 
-include { SAMPLESHEET_CHECK    } from '../../modules/local/samplesheet_check'
-include { POSTDEMUX_SAMPSHEET  } from '../../modules/local/custom/postdemuxsampsheet/main.nf'
+include { SAMPLESHEET_CHECK       } from '../../modules/local/samplesheet_check'
+include { ALT_POSTDEMUX_SAMPSHEET } from '../../modules/local/custom/alt_postdemuxsampsheet/main.nf'
 
 workflow ALT_POSTDEMUX_WORKFLOW {
     take:
@@ -14,15 +14,14 @@ workflow ALT_POSTDEMUX_WORKFLOW {
     ch_versions = Channel.empty()
 
     // MODULE: Create a new samplesheet with demultiplexed fastq files
-    POSTDEMUX_SAMPSHEET (
+    ALT_POSTDEMUX_SAMPSHEET (
         samplesheet,
-        demux_reads,
-        "tmp"
+        demux_reads
     )
-    ch_versions = ch_versions.mix(POSTDEMUX_SAMPSHEET.out.versions)
+    ch_versions = ch_versions.mix(ALT_POSTDEMUX_SAMPSHEET.out.versions)
 
     // MODULE: This is needed to create a reads channel that's compatible with nf-core modules
-    SAMPLESHEET_CHECK ( POSTDEMUX_SAMPSHEET.out.samplesheet )
+    SAMPLESHEET_CHECK ( ALT_POSTDEMUX_SAMPSHEET.out.samplesheet )
         .csv
         .splitCsv ( header:true, sep:',' )
         .map { create_new_fastq_channel(it) }
@@ -31,8 +30,8 @@ workflow ALT_POSTDEMUX_WORKFLOW {
 
     emit:
     reads                                                     // channel: [ val(meta), [ reads ] ]
-    missing_samples = POSTDEMUX_SAMPSHEET.out.missing_samples // channel: [ missing_samples.txt ]
-    samplesheet     = POSTDEMUX_SAMPSHEET.out.samplesheet     // channel: [ samplesheet ]
+    missing_samples = ALT_POSTDEMUX_SAMPSHEET.out.missing_samples // channel: [ missing_samples.txt ]
+    samplesheet     = ALT_POSTDEMUX_SAMPSHEET.out.samplesheet     // channel: [ samplesheet ]
     versions        = ch_versions                             // channel: [ versions.yml ]
 }
 

@@ -233,6 +233,10 @@ workflow OCEANOMICS_AMPLICON {
             //ch_assigned_stats           = ALT_CUTADAPT_WORKFLOW.out.assigned_stats
             //ch_assigned_stats_collected = ch_assigned_stats.map{ it = it[1] }.collect()
 
+            ch_demux_reads = ch_demux_reads.map{ it = it[1] }.collect().map { it = ["collected", it] }
+            //ch_reads_filt    = DADA2_FILTERANDTRIM.out.reads.map { it[1] }.collect()
+            //INPUTFILE_INFO.out.csv.map{ it = it[1] }.collect().map { it = ["collected", it] }
+
             ALT_POSTDEMUX_WORKFLOW (
                 ch_demux_reads,
                 ch_input
@@ -557,36 +561,39 @@ workflow OCEANOMICS_AMPLICON {
                     prefix = prefix + "_" + params.dbname + "_default_format"
                     return [ prefix, table ]
                 }
-            ch_curated_fasta = ch_curated_fasta
-                .map {
-                    prefix, fasta ->
-                    prefix = prefix + "_" + params.dbname
-                    return [ prefix, fasta ]
-                }
-            ch_fasta = ch_fasta
-                .map {
-                    prefix, fasta ->
-                    prefix = prefix + "_" + params.dbname
-                    return [ prefix, fasta ]
-                }
-            //ch_curated_table = ch_curated_table
-            //    .map {
-            //        prefix, table ->
-            //        prefix = prefix + "_" + params.dbname
-            //        return [ prefix, table ]
-            //    }
-            ch_otu_table = ch_otu_table
-                .map {
-                    prefix, table ->
-                    prefix = prefix + "_" + params.dbname
-                    return [ prefix, table ]
-                }
-            ch_lca_input_table = ch_lca_input_table
-                .map {
-                    prefix, table ->
-                    prefix = prefix + "_" + params.dbname
-                    return [ prefix, table ]
-                }
+            if (! params.blast_twice) {
+                ch_curated_fasta = ch_curated_fasta
+                    .map {
+                        prefix, fasta ->
+                        prefix = prefix + "_" + params.dbname
+                        return [ prefix, fasta ]
+                    }
+                ch_fasta = ch_fasta
+                    .map {
+                        prefix, fasta ->
+                        prefix = prefix + "_" + params.dbname
+                        return [ prefix, fasta ]
+                    }
+                //ch_curated_table = ch_curated_table
+                //    .map {
+                //        prefix, table ->
+                //        prefix = prefix + "_" + params.dbname
+                //        return [ prefix, table ]
+                //    }
+                ch_otu_table = ch_otu_table
+                    .map {
+                        prefix, table ->
+                        prefix = prefix + "_" + params.dbname
+                        return [ prefix, table ]
+                    }
+                ch_lca_input_table = ch_lca_input_table
+                    .map {
+                        prefix, table ->
+                        prefix = prefix + "_" + params.dbname
+                        return [ prefix, table ]
+                    }
+            }
+            
 
             if (params.blast_twice) {
                 BLAST_BLASTN2 (
@@ -610,19 +617,31 @@ workflow OCEANOMICS_AMPLICON {
                         return [ prefix, table ]
                     }
                 )
-                ch_curated_fasta = ch_curated_fasta.mix(
+                ch_curated_fasta = ch_curated_fasta
+                .map {
+                        prefix, fasta ->
+                        prefix = prefix + "_" + params.dbname
+                        return [ prefix, fasta ]
+                    }
+                .mix(
                     ch_curated_fasta
                     .map {
                         prefix, fasta ->
-                        prefix = prefix + "2"
+                        prefix = prefix + "_" + params.db2name
                         return [ prefix, fasta ]
                     }
                 )
-                ch_fasta = ch_fasta.mix(
+                ch_fasta = ch_fasta
+                .map {
+                        prefix, fasta ->
+                        prefix = prefix + "_" + params.dbname
+                        return [ prefix, fasta ]
+                    }
+                .mix(
                     ch_fasta
                     .map {
                         prefix, fasta ->
-                        prefix = prefix + "2"
+                        prefix = prefix + "_" + params.db2name
                         return [ prefix, fasta ]
                     }
                 )
@@ -630,23 +649,35 @@ workflow OCEANOMICS_AMPLICON {
                 //    ch_curated_table
                 //    .map {
                 //        prefix, table ->
-                //        prefix = prefix + "_blast2"
+                //        prefix = prefix + "_" + params.db2name
                 //        return [ prefix, table ]
                 //    }
                 //)
-                ch_otu_table = ch_otu_table.mix(
+                ch_otu_table = ch_otu_table
+                .map {
+                        prefix, fasta ->
+                        prefix = prefix + "_" + params.dbname
+                        return [ prefix, fasta ]
+                    }
+                .mix(
                     ch_otu_table
                     .map {
                         prefix, table ->
-                        prefix = prefix + "2"
+                        prefix = prefix + "_" + params.db2name
                         return [ prefix, table ]
                     }
                 )
-                ch_lca_input_table = ch_lca_input_table.mix(
+                ch_lca_input_table = ch_lca_input_table
+                .map {
+                        prefix, fasta ->
+                        prefix = prefix + "_" + params.dbname
+                        return [ prefix, fasta ]
+                    }
+                .mix(
                     ch_lca_input_table
                     .map {
                         prefix, table ->
-                        prefix = prefix + "2"
+                        prefix = prefix + "_" + params.db2name
                         return [ prefix, table ]
                     }
                 )
@@ -661,6 +692,7 @@ workflow OCEANOMICS_AMPLICON {
         }
 
         if (!params.skip_lulu && !params.skip_lulu_comparison && !params.start_from_blast && !params.start_from_lca) {
+            ch_curated_fasta.view()
             ch_precurated_blastn_results = ch_curated_fasta.join(CONCAT_BLASTN_RESULTS.out.txt)
             CURATE_BLASTN_RESULTS (
                 ch_precurated_blastn_results

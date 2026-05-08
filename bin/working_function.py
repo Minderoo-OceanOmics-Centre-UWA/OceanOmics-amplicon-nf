@@ -37,8 +37,8 @@ def splitFile(ll):
 
 
 def create_taxaRaw(acc, db):
-    f = open("taxaRaw.tsv", "w")
-    f.write("seq_id\tdna_sequence\tkingdom\tphylum\tclass\torder\tfamily\tgenus\tspecificEpithet\tscientificName\tscientificNameAuthorship\ttaxonRank\ttaxonID\ttaxonID_db\tverbatimIdentification\taccession_id\taccession_id_ref_db\tpercent_match\tpercent_query_cover\tconfidence_score\tidentificationRemarks\n")
+    f = open("taxa_raw.tsv", "w")
+    f.write("seq_id\tdna_sequence\tdomain\tphylum\tclass\torder\tfamily\tgenus\tspecificEpithet\tscientificName\tscientificNameAuthorship\ttaxonRank\ttaxonID\ttaxonID_db\tverbatimIdentification\taccession_id\taccession_id_ref_db\tpercent_match\tpercent_query_cover\tconfidence_score\tidentificationRemarks\n")
     for x in acc:
         if x != []:
             split_line = x[-6].split("authority=(")
@@ -105,8 +105,8 @@ def create_taxaRaw(acc, db):
 
 
 def create_taxaFinal(acc, table, db):
-    f = open("taxaFinal.tsv", "w")
-    f.write("seq_id\tdna_sequence\tkingdom\tphylum\tclass\torder\tfamily\tgenus\tspecificEpithet\tscientificName\tscientificNameAuthorship\ttaxonRank\ttaxonID\ttaxonID_db\tverbatimIdentification\taccession_id\taccession_id_ref_db\tpercent_match\tpercent_query_cover\tconfidence_score\tidentificationRemarks\n")
+    f = open("taxa_final.tsv", "w")
+    f.write("seq_id\tdna_sequence\tdomain\tphylum\tclass\torder\tfamily\tgenus\tspecificEpithet\tscientificName\tscientificNameAuthorship\ttaxonRank\ttaxonID\ttaxonID_db\tverbatimIdentification\taccession_id\taccession_id_ref_db\tpercent_match\tpercent_query_cover\tconfidence_score\tidentificationRemarks\n")
     for x in acc:
         if x[6] in table:
             split_line = x[-6].split("authority=(")

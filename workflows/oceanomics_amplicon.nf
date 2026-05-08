@@ -692,7 +692,6 @@ workflow OCEANOMICS_AMPLICON {
         }
 
         if (!params.skip_lulu && !params.skip_lulu_comparison && !params.start_from_blast && !params.start_from_lca) {
-            ch_curated_fasta.view()
             ch_precurated_blastn_results = ch_curated_fasta.join(CONCAT_BLASTN_RESULTS.out.txt)
             CURATE_BLASTN_RESULTS (
                 ch_precurated_blastn_results

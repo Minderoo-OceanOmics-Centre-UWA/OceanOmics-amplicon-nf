@@ -67,22 +67,39 @@ process ADD_BACK_MASTERLIST {
                 genus = "NA"
                 species = "NA"
 
-            new_row = {
-                "domain": domain, 
-                "phylum":phylum, 
-                "class": clss, 
-                "order": order, 
-                "family": family, 
-                "genus": genus, 
-                "species": species, 
-                "OTU": asv, 
-                "length": "NA", 
-                "numberOfUnq_BlastHits": "NA", 
-                "%ID": "NA",
-                "queryCoverage": "NA",
-                "species_in_LCA": "NA",
-                "sources": "NA" 
-            }
+            if ("length" in lca_table.columns.tolist()):
+                new_row = {
+                    "domain": domain, 
+                    "phylum":phylum, 
+                    "class": clss, 
+                    "order": order, 
+                    "family": family, 
+                    "genus": genus, 
+                    "species": species, 
+                    "OTU": asv, 
+                    "length": "NA", 
+                    "numberOfUnq_BlastHits": "NA", 
+                    "%ID": "NA",
+                    "queryCoverage": "NA",
+                    "species_in_LCA": "NA",
+                    "sources": "NA" 
+                }
+            else:
+                new_row = {
+                    "domain": domain, 
+                    "phylum":phylum, 
+                    "class": clss, 
+                    "order": order, 
+                    "family": family, 
+                    "genus": genus, 
+                    "species": species, 
+                    "OTU": asv, 
+                    "numberOfUnq_BlastHits": "NA", 
+                    "%ID": "NA",
+                    "queryCoverage": "NA",
+                    "species_in_LCA": "NA",
+                    "sources": "NA" 
+                }
 
             # new_row (sample columns) fill with otu_table
             for sam in samples:
@@ -121,6 +138,9 @@ process ADD_BACK_MASTERLIST {
                 "length": "NA"
             }
 
+            if ("length" not in taxa_final.columns.tolist()):
+                taxa_final["length"] = "NA"
+            
             taxa_final = pd.concat([taxa_final, pd.DataFrame([new_row])], ignore_index=True)
 
     lca_table.to_csv("with_masterlist_seqs_${lca_table}", sep = "\\t", index = False)

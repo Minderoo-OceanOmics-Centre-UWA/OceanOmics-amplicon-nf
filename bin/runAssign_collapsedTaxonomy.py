@@ -82,7 +82,6 @@ def main():
         i = 0  # define flag used to detect first line of the temporary file
         linenr = 0  # current line number
         loccnt = 6  # local column counter
-
         for line in file:
             # This will remove not helpfull assignments as set inside '' in below line,
             # but will still keep them in intermediate file for record

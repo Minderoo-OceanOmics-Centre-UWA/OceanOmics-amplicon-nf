@@ -11,8 +11,8 @@ process LCA {
     output:
     path "*intermediate.tab"                  , emit: intermediate
     tuple val(prefix), path("*lca_output.tab"), emit: lca_output
-    tuple val(prefix), path("*taxaRaw.tsv")   , emit: taxa_raw
-    tuple val(prefix), path("*taxaFinal.tsv") , emit: taxa_final
+    tuple val(prefix), path("*taxa_raw.tsv")  , emit: taxa_raw
+    tuple val(prefix), path("*taxa_final.tsv"), emit: taxa_final
     path "versions.yml"                       , emit: versions
 
     when:
@@ -59,10 +59,10 @@ process LCA {
         \$DB
 
     mv interMediate_res.tab ${prefix}_intermediate.tab
-    cat taxaRaw.tsv | sed 's/"//g' > ${prefix}_taxaRaw.tsv
-    cat taxaFinal.tsv | sed 's/"//g' > ${prefix}_taxaFinal.tsv
-    rm taxaRaw.tsv
-    rm taxaFinal.tsv
+    cat taxa_raw.tsv | sed 's/"//g' > ${prefix}_taxa_raw.tsv
+    cat taxa_final.tsv | sed 's/"//g' > ${prefix}_taxa_final.tsv
+    rm taxa_raw.tsv
+    rm taxa_final.tsv
 
     asv_count=\$(tail -n +2 "${prefix}_lca_output.tab" | wc -l)
     if [ "\$asv_count" -lt 2 ]; then

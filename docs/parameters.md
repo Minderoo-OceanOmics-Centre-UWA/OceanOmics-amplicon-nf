@@ -103,3 +103,4 @@ All the parameters in the pipeline can be set in a config file, or they can be s
 - [fasta](#fasta). ASV/ZOTU fasta file to be used when starting from the BLAST or LCA steps.
 - [otu_table](#otu_table). ASV/ZOTU count table to be used when starting from the BLAST or LCA steps.
 - [blast_results](#blast_results). BLAST results file to be used when starting at the LCA step. BLAST should have been run with "-outfmt '6 qseqid sseqid staxids sscinames scomnames sskingdoms pident length qlen slen mismatch gapopen gaps qstart qend sstart send stitle evalue bitscore qcovs qcovhsp'"
+- [partial_run_prefix](#partial_run_prefix). When using start_from_blast or start_from_lca, this will be used as the prefix for your output files

@@ -404,6 +404,10 @@
                     "format": "file-path",
                     "default": null
                 },
+                "partial_run_prefix": {
+                    "type": "string",
+                    "description": "Prefix to add to file names when doing a partial run"
+                },
                 "ulimit": {
                     "type": "integer",
                     "default": 40000

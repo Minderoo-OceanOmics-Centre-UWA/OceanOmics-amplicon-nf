@@ -29,25 +29,25 @@ if (params.start_from_blast) {
         ch_fasta = Channel.fromPath(params.fasta, checkIfExists: true)
             .map{
                 file ->
-                prefix = "partial_run"
+                prefix = params.partial_run_prefix
                 return [ prefix, file ]
             }
         ch_curated_table = Channel.fromPath(params.otu_table, checkIfExists: true)
             .map{
                 file ->
-                prefix = "partial_run"
+                prefix = params.partial_run_prefix
                 return [ prefix, file ]
             }
         ch_lca_input_table = Channel.fromPath(params.otu_table, checkIfExists: true)
             .map{
                 file ->
-                prefix = "partial_run"
+                prefix = params.partial_run_prefix
                 return [ prefix, file ]
             }
         ch_otu_table = Channel.fromPath(params.otu_table, checkIfExists: true)
             .map{
                 file ->
-                prefix = "partial_run"
+                prefix = params.partial_run_prefix
                 return [ prefix, file ]
             }
     } else {
@@ -58,31 +58,31 @@ if (params.start_from_blast) {
         ch_fasta = Channel.fromPath(params.fasta, checkIfExists: true)
             .map{
                 file ->
-                prefix = "partial_run"
+                prefix = params.partial_run_prefix
                 return [ prefix, file ]
             }
         ch_curated_table = Channel.fromPath(params.otu_table, checkIfExists: true)
             .map{
                 file ->
-                prefix = "partial_run"
+                prefix = params.partial_run_prefix
                 return [ prefix, file ]
             }
         ch_lca_input_table = Channel.fromPath(params.otu_table, checkIfExists: true)
             .map{
                 file ->
-                prefix = "partial_run"
+                prefix = params.partial_run_prefix
                 return [ prefix, file ]
             }
         ch_otu_table = Channel.fromPath(params.otu_table, checkIfExists: true)
             .map{
                 file ->
-                prefix = "partial_run"
+                prefix = params.partial_run_prefix
                 return [ prefix, file ]
             }
         ch_blast_results = Channel.fromPath(params.blast_results, checkIfExists: true)
             .map{
                 file ->
-                prefix = "partial_run"
+                prefix = params.partial_run_prefix
                 return [ prefix, file ]
             }
     } else {
@@ -506,7 +506,7 @@ workflow OCEANOMICS_AMPLICON {
                     }
                 )
         }
-    } else {
+    } else if (!params.start_from_lca) {
         ch_curated_table = ch_lca_input_table
             .map {
                 prefix, table ->
@@ -521,6 +521,8 @@ workflow OCEANOMICS_AMPLICON {
                     return [ prefix, table ]
                 }
             )
+    } else {
+        ch_curated_table = ch_lca_input_table
     }
 
     if (params.masterlist) {
@@ -716,6 +718,7 @@ workflow OCEANOMICS_AMPLICON {
         }
 
         if (params.lca_with_fishbase) {
+            ch_curated_table.view()
             ch_lca_input = ch_curated_table.join(ch_blast_results)
 
             //

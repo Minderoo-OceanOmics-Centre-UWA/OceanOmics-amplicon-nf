@@ -718,7 +718,6 @@ workflow OCEANOMICS_AMPLICON {
         }
 
         if (params.lca_with_fishbase) {
-            ch_curated_table.view()
             ch_lca_input = ch_curated_table.join(ch_blast_results)
 
             //

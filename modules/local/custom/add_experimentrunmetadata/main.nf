@@ -57,7 +57,7 @@ process ADD_EXPERIMENTRUNMETADATA {
     phy_tax      <- data.frame(phyloseq@tax_table)
     fileinfo     <- read.csv(${inputfile_info}, header=TRUE, quote="")
     sampsheet    <- read.csv(${samplesheet}, header=TRUE, quote="")
-    seqkit_stats <- read.table(${prefilter_stats}, header=TRUE, quote="")
+    seqkit_stats <- read.table(${prefilter_stats}, header=TRUE, quote="", fill = TRUE)
     faire_meta   <- read_excel(${metadata}, sheet="sampleMetadata")
     assay        <- ${assay}
     seq_run_id   <- ${seq_run_id}

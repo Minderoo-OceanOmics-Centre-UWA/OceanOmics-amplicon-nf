@@ -27,140 +27,114 @@ process CREATE_FAIRE_METADATA {
     """
     #!/usr/bin/env Rscript
 
-    # Load libraries
+    library(data.table)
     library(openxlsx)
 
-    getLastRow <- function(wb, sheet) {
-        nrows <- nrow(readWorkbook(wb, sheet = sheet))
-        if (is.na(nrows)) return(1)
-        return(nrows + 1)
-    }
-
-    # Get R version
-    r_version <- R.version.string
-
-    # Read data
-    taxa_raw <- read.table(${taxa_raw}, sep = "\\t", header = TRUE, stringsAsFactors = FALSE, quote="", comment.char="")
-    taxa_final <- read.table(${taxa_final}, sep = "\\t", header = TRUE, stringsAsFactors = FALSE, quote="", comment.char="")
-    otu_raw <- read.table(${otu_raw}, sep = "\\t", header = TRUE, stringsAsFactors = FALSE, quote="", comment.char="")
-    otu_final <- read.table(${otu_final}, sep = "\\t", header = TRUE, stringsAsFactors = FALSE, quote="", comment.char="")
+    # Faster TSV reading
+    taxa_raw        <- read.table(${taxa_raw}, sep = "\\t", header = TRUE, stringsAsFactors = FALSE, quote="", comment.char="")
+    taxa_final      <- read.table(${taxa_final}, sep = "\\t", header = TRUE, stringsAsFactors = FALSE, quote="", comment.char="")
+    otu_raw         <- read.table(${otu_raw}, sep = "\\t", header = TRUE, stringsAsFactors = FALSE, quote="", comment.char="")
+    otu_final       <- read.table(${otu_final}, sep = "\\t", header = TRUE, stringsAsFactors = FALSE, quote="", comment.char="")
     full_taxa_table <- read.table(${full_taxa_table}, sep = "\\t", header = TRUE, stringsAsFactors = FALSE, quote="", comment.char="")
 
-    if ("ASV" %in% colnames(full_taxa_table)) {
-        upper_prefix = "ASV"
-    } else {
-        upper_prefix = "ZOTU"
+    # Detect ID column
+    upper_prefix <- if ("ASV" %in% names(full_taxa_table)) "ASV" else "ZOTU"
+
+    id_col <- upper_prefix
+
+    # Missing IDs
+    missing_ids <- setdiff(full_taxa_table[[id_col]], taxa_raw\$seq_id)
+
+    # Only process missing rows
+    if (length(missing_ids) > 0) {
+
+        missing_rows <- full_taxa_table[
+            full_taxa_table[[id_col]] %in% missing_ids,
+        ]
+        
+
+        # Build new rows vectorized
+        new_rows <- data.table(
+            seq_id = missing_rows[[id_col]],
+            dna_sequence = missing_rows[[paste0(upper_prefix, "_sequence")]],
+            domain = "not applicable",
+            phylum = "not applicable",
+            class = "not applicable",
+            order = "not applicable",
+            family = "not applicable",
+            genus = "not applicable",
+            specificEpithet = "not applicable",
+            scientificName = "not applicable",
+            scientificNameAuthorship = "not applicable",
+            taxonRank = "not applicable",
+            taxonID = "not applicable",
+            taxonID_db = "not applicable",
+            verbatimIdentification = "not applicable",
+            accession_id = "not applicable",
+            accession_id_ref_db = "not applicable",
+            percent_match = "not applicable",
+            percent_query_cover = "not applicable",
+            confidence_score = "not applicable",
+            identificationRemarks = "not applicable"
+        )
+
+        # Optional columns
+        length_col <- paste0(${prefix}, "_length")
+
+        if (length_col %in% names(missing_rows)) {
+            new_rows[[length_col]] <- missing_rows[[length_col]]
+        }
+
+        if ("length" %in% names(missing_rows)) {
+            new_rows[["length"]] <- missing_rows[["length"]]
+        }
+
+        # Add unusual_size only for taxa_final
+        new_rows_final <- copy(new_rows)
+
+        if ("unusual_size" %in% names(missing_rows)) {
+            new_rows_final[["unusual_size"]] <- missing_rows[["unusual_size"]]
+        }
+
+        # Single append
+        taxa_raw   <- rbindlist(list(taxa_raw, new_rows), fill = TRUE)
+        taxa_final <- rbindlist(list(taxa_final, new_rows_final), fill = TRUE)
     }
 
-    all_ids <- full_taxa_table[, upper_prefix]
+    # Workbook
+    wb <- loadWorkbook(${metadata})
 
-    subset_ids <- unique(taxa_raw[, "seq_id"])
-    for (id in all_ids) {
-        if (! id %in% subset_ids) {
-            new_row <- data.frame(
-                seq_id = id,
-                dna_sequence = full_taxa_table[full_taxa_table[[upper_prefix]] == id, paste0(upper_prefix, "_sequence")],
-                domain = "not applicable",
-                phylum = "not applicable",
-                class = "not applicable",
-                order = "not applicable",
-                family = "not applicable",
-                genus = "not applicable",
-                specificEpithet = "not applicable",
-                scientificName = "not applicable",
-                scientificNameAuthorship = "not applicable",
-                taxonRank = "not applicable",
-                taxonID = "not applicable",
-                taxonID_db = "not applicable",
-                verbatimIdentification = "not applicable",
-                accession_id = "not applicable",
-                accession_id_ref_db = "not applicable",
-                percent_match = "not applicable",
-                percent_query_cover = "not applicable",
-                confidence_score = "not applicable",
-                identificationRemarks = "not applicable"
+    write_sheet <- function(wb, sheet, data) {
+
+        if (!(sheet %in% names(wb))) {
+            addWorksheet(wb, sheet)
+            writeData(wb, sheet, data)
+        } else {
+
+            # Faster than reading sheet back in
+            existing_rows <- nrow(readWorkbook(wb, sheet = sheet, colNames = TRUE))
+
+            writeData(
+                wb,
+                sheet = sheet,
+                x = data,
+                startRow = existing_rows + 2,
+                colNames = FALSE
             )
-            if (paste0(${prefix}, "_length") %in% full_taxa_table) {
-                new_row[[paste0(${prefix}, "_length")]] <- full_taxa_table[full_taxa_table[[upper_prefix]] == id, paste0(${prefix}, "_length")]
-            }
-            if (! paste0(${prefix}, "_length") %in% new_row) {
-                if (paste0(${prefix}, "_length") %in% taxa_raw) {
-                    new_row[[paste0(${prefix}, "_length")]] <- taxa_raw[taxa_raw[[upper_prefix]] == id, paste0(${prefix}, "_length")]
-                } else {
-                    taxa_raw[[paste0(${prefix}, "_length")]] <- NULL
-                }
-            }
-            if (! paste0(${prefix}, "_length") %in% new_row) {
-                if (paste0(${prefix}, "_length") %in% taxa_final) {
-                    new_row[[paste0(${prefix}, "_length")]] <- taxa_final[taxa_final[[upper_prefix]] == id, paste0(${prefix}, "_length")]
-                } else {
-                    taxa_final[[paste0(${prefix}, "_length")]] <- NULL
-                }
-            }
-
-            if ("length" %in% full_taxa_table) {
-                new_row[["length"]] <- full_taxa_table[full_taxa_table[[upper_prefix]] == id, "length"]
-            }
-            if (! "length" %in% new_row) {
-                if ("length" %in% taxa_raw) {
-                    new_row[["length"]] <- taxa_raw[taxa_raw[[upper_prefix]] == id, "length"]
-                } else {
-                    taxa_raw[["length"]] <- NULL
-                }
-            }
-            if (! "length" %in% new_row) {
-                if ("length" %in% taxa_final) {
-                    new_row[["length"]] <- taxa_final[taxa_final[[upper_prefix]] == id, "length"]
-                } else {
-                    taxa_final[["length"]] <- NULL
-                }
-            }
-
-            taxa_raw <- rbind(taxa_raw, new_row)
-            new_row\$unusual_size <- full_taxa_table[full_taxa_table[[upper_prefix]] == id, "unusual_size"]
-            taxa_final <- rbind(taxa_final, new_row)
         }
     }
 
-    # Load existing workbook
-    wb <- loadWorkbook(${metadata})
+    write_sheet(wb, "taxaRaw", taxa_raw)
+    write_sheet(wb, "taxaFinal", taxa_final)
+    write_sheet(wb, "otuRaw", otu_raw)
+    write_sheet(wb, "otuFinal", otu_final)
 
-    # Write to "taxaRaw" sheet
-    result = tryCatch({
-        writeData(wb, sheet = "taxaRaw", x = taxa_raw, startRow = getLastRow(wb, "taxaRaw") + 1, colNames = FALSE)
-    }, error = function(e) {
-        addWorksheet(wb, sheetName = "taxaRaw")
-        writeData(wb, sheet = "taxaRaw", x = taxa_raw, rowNames = TRUE)
-    })
+    saveWorkbook(
+        wb,
+        paste0(${prefix}, "_final_faire_metadata.xlsx"),
+        overwrite = TRUE
+    )
 
-    # Write to "taxaFinal" sheet
-    result = tryCatch({
-        writeData(wb, sheet = "taxaFinal", x = taxa_final, startRow = getLastRow(wb, "taxaFinal") + 1, colNames = FALSE)
-    }, error = function(e) {
-        addWorksheet(wb, sheetName = "taxaFinal")
-        writeData(wb, sheet = "taxaFinal", x = taxa_final, rowNames = TRUE)
-    })
-
-    # Write to "otuRaw" sheet
-    result = tryCatch({
-        writeData(wb, sheet = "otuRaw", x = otu_raw, startRow = getLastRow(wb, "otuRaw") + 1, colNames = FALSE)
-    }, error = function(e) {
-        addWorksheet(wb, sheetName = "otuRaw")
-        writeData(wb, sheet = "otuRaw", x = otu_raw, rowNames = TRUE)
-    })
-
-    # Write to "otuFinal" sheet
-    result = tryCatch({
-        writeData(wb, sheet = "otuFinal", x = otu_final, startRow = getLastRow(wb, "otuFinal") + 1, colNames = FALSE)
-    }, error = function(e) {
-        addWorksheet(wb, sheetName = "otuFinal")
-        writeData(wb, sheet = "otuFinal", x = otu_final, rowNames = TRUE)
-    })
-
-    # Save workbook
-    saveWorkbook(wb, paste0(${prefix}, "_final_faire_metadata.xlsx"), overwrite = TRUE)
-
-    # Version information
     writeLines(c("\\"${task.process}\\":", paste0("    R: ", paste0(R.Version()[c("major","minor")], collapse = ".")),paste0("    openxlsx: ", packageVersion("openxlsx"))), "versions.yml")
     """
 }

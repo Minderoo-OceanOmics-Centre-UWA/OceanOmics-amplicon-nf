@@ -182,7 +182,16 @@ process PROPORTIONAL_FILTER {
 
     write.table(phyloseq_taxa, paste0($prefix, "_phyloseq_taxa_filtered.tsv"), sep = "\\t", quote=FALSE)
     write.table(faire_taxa, paste0($prefix, "_faire_taxa_filtered.tsv"), sep = "\\t", quote=FALSE)
-    write.table(OTU, paste0($prefix, "_OTU_filtered.tsv"), sep = "\\t", quote=FALSE)
+
+    OTU_tmp <- OTU
+    if (upper_prefix == "ASV") {
+        OTU_tmp <- cbind(ASV = rownames(OTU_tmp), OTU_tmp)
+    } else {
+        OTU_tmp <- cbind(ZOTU = rownames(OTU_tmp), OTU_tmp)
+    }
+    
+    rownames(OTU_tmp) <- NULL
+    write.table(OTU_tmp, paste0($prefix, "_OTU_filtered.tsv"), sep = "\\t", quote=FALSE)
 
     #if (length(TAX[[paste0(upper_prefix, "_sequence")]]) >= 3) {
         # Phylogenetic tree code based on code from

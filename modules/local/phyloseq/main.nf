@@ -29,9 +29,6 @@ process PHYLOSEQ {
 
     suppressPackageStartupMessages(library(phyloseq))
     suppressPackageStartupMessages(library(readr))
-    #suppressPackageStartupMessages(library(DECIPHER))
-    #suppressPackageStartupMessages(library(phangorn))
-    #suppressPackageStartupMessages(library(Biostrings))
     suppressPackageStartupMessages(library(stringr))
 
     #........................................................................

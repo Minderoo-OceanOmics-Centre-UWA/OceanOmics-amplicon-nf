@@ -146,15 +146,25 @@ if (file.exists("filtered_samples.txt")) {
 if (any(grepl("_primer_contam_stats.txt", list.files()))) {
     primer_infos   <- list()
     primer_bool    <- TRUE
+    
+    primer_contam_files <- list.files(
+        pattern = "^asv.*primer_contam_stats\\.txt$"
+    )
+    
+    db_types <- c()
+    for (i in primer_contam_files) {
+        db_types <- c(db_types, strsplit(i, split = "_")[[1]][2])
+    }
+    db_types <- unique(db_types)[1]
 
-    if (file.exists("asv_blast_primer_contam_stats.txt")) {
-        primer_info           <- readLines("asv_blast_primer_contam_stats.txt") %>%
+    if (file.exists(paste0("asv_", db_types, "_primer_contam_stats.txt"))) {
+        primer_info           <- readLines(paste0("asv_", db_types, "_primer_contam_stats.txt")) %>%
                                 data.frame()
         primer_infos[["ASV"]] <- list(primer_info)
     }
 
-    if (file.exists("zotu_blast_primer_contam_stats.txt")) {
-        primer_info           <- readLines("zotu_blast_primer_contam_stats.txt") %>%
+    if (file.exists(paste0("zotu_", db_types, "_primer_contam_stats.txt"))) {
+        primer_info           <- readLines(paste0("zotu_", db_types, "_primer_contam_stats.txt")) %>%
                                 data.frame()
         primer_infos[["ZOTU"]] <- list(primer_info)
     }
@@ -172,23 +182,39 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
     both_dfs       <- list()
     seq_types      <- c()
     analysis_types <- c()
+    
+    taxa_files <- list.files(
+        pattern = "^asv.*phyloseq_taxa_filtered\\.tsv$"
+    )
+    
+    db_types <- c()
+    for (i in taxa_files) {
+        db_types <- c(db_types, strsplit(i, split = "_")[[1]][2])
+    }
+    db_types <- unique(db_types)
+    db_one <- db_types[1]
+    if (length(db_types) == 2) {
+        db_two <- db_types[2]
+    } else {
+        db_two <- FALSE
+    }
 
-    if (file.exists("asv_blast_phyloseq_taxa_filtered.tsv")) {
+    if (file.exists(paste0("asv_", db_one, "_phyloseq_taxa_filtered.tsv"))) {
         seq_type            <- "ASV"
         analysis_types      <- append(analysis_types, seq_type)
         seq_types           <- append(seq_types, seq_type)
-        curr_taxa           <- read.table("asv_blast_phyloseq_taxa_filtered.tsv",
+        curr_taxa           <- read.table(paste0("asv_", db_one, "_phyloseq_taxa_filtered.tsv"),
                                         sep = "\t", header = TRUE)
 
         tax_dfs[[seq_type]]  <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]]   <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
         both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
 
-    } else if (file.exists("asv_blast_phyloseq_taxa.tsv")) {
+    } else if (file.exists(paste0("asv_", db_one, "_phyloseq_taxa.tsv"))) {
         seq_type            <- "ASV"
         analysis_types      <- append(analysis_types, seq_type)
         seq_types           <- append(seq_types, seq_type)
-        curr_taxa           <- read.table("asv_blast_phyloseq_taxa.tsv",
+        curr_taxa           <- read.table(paste0("asv_", db_one, "_phyloseq_taxa.tsv"),
                                         sep = "\t", header = TRUE)
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
@@ -196,20 +222,20 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
         both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
     }
 
-    if (file.exists("asv_blast_lulucurated_phyloseq_taxa_filtered.tsv")) {
+    if (file.exists(paste0("asv_", db_one, "_lulucurated_phyloseq_taxa_filtered.tsv"))) {
         seq_type            <- "ASV_LULUCURATED"
         analysis_types      <- append(analysis_types, seq_type)
-        curr_taxa           <- read.table("asv_blast_lulucurated_phyloseq_taxa_filtered.tsv",
+        curr_taxa           <- read.table(paste0("asv_", db_one, "_lulucurated_phyloseq_taxa_filtered.tsv"),
                                         sep = "\t", header = TRUE)
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
         both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
 
-    } else if (file.exists("asv_blast_lulucurated_phyloseq_taxa.tsv")) {
+    } else if (file.exists(paste0("asv_", db_one, "_lulucurated_phyloseq_taxa.tsv"))) {
         seq_type            <- "ASV_LULUCURATED"
         analysis_types      <- append(analysis_types, seq_type)
-        curr_taxa           <- read.table("asv_blast_lulucurated_phyloseq_taxa.tsv",
+        curr_taxa           <- read.table(paste0("asv_", db_one, "_lulucurated_phyloseq_taxa.tsv"),
                                         sep = "\t", header = TRUE)
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
@@ -217,22 +243,22 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
         both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
     }
 
-    if (file.exists("zotu_blast_phyloseq_taxa_filtered.tsv")) {
+    if (file.exists(paste0("zotu_", db_one, "_phyloseq_taxa_filtered.tsv"))) {
         seq_type            <- "ZOTU"
         analysis_types      <- append(analysis_types, seq_type)
         seq_types           <- append(seq_types, seq_type)
-        curr_taxa           <- read.table("zotu_blast_phyloseq_taxa_filtered.tsv",
+        curr_taxa           <- read.table(paste0("zotu_", db_one, "_phyloseq_taxa_filtered.tsv"),
                                         sep = "\t", header = TRUE)
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
         both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
 
-    } else if (file.exists("zotu_blast_phyloseq_taxa.tsv")) {
+    } else if (file.exists(paste0("zotu_", db_one, "_phyloseq_taxa.tsv"))) {
         seq_type            <- "ZOTU"
         analysis_types      <- append(analysis_types, seq_type)
         seq_types           <- append(seq_types, seq_type)
-        curr_taxa           <- read.table("zotu_blast_phyloseq_taxa.tsv",
+        curr_taxa           <- read.table(paste0("zotu_", db_one, "_phyloseq_taxa.tsv"),
                                         sep = "\t", header = TRUE)
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
@@ -240,20 +266,20 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
         both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
     }
 
-    if (file.exists("zotu_blast_lulucurated_phyloseq_taxa_filtered.tsv")) {
+    if (file.exists(paste0("zotu_", db_one, "_lulucurated_phyloseq_taxa_filtered.tsv"))) {
         seq_type            <- "ZOTU_LULUCURATED"
         analysis_types      <- append(analysis_types, seq_type)
-        curr_taxa           <- read.table("zotu_blast_lulucurated_phyloseq_taxa_filtered.tsv",
+        curr_taxa           <- read.table(paste0("zotu_", db_one, "_lulucurated_phyloseq_taxa_filtered.tsv"),
                                         sep = "\t", header = TRUE)
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
         na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
         both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
 
-    } else if (file.exists("zotu_blast_lulucurated_phyloseq_taxa.tsv")) {
+    } else if (file.exists(paste0("zotu_", db_one, "_lulucurated_phyloseq_taxa.tsv"))) {
         seq_type            <- "ZOTU_LULUCURATED"
         analysis_types      <- append(analysis_types, seq_type)
-        curr_taxa           <- read.table("zotu_blast_lulucurated_phyloseq_taxa.tsv",
+        curr_taxa           <- read.table(paste0("zotu_", db_one, "_lulucurated_phyloseq_taxa.tsv"),
                                         sep = "\t", header = TRUE)
 
         tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
@@ -266,91 +292,92 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
 
 
-
-    if (file.exists("asv_blast2_phyloseq_taxa_filtered.tsv")) {
-        seq_type            <- "ASV_SECOND_DB"
-        analysis_types      <- append(analysis_types, seq_type)
-        curr_taxa           <- read.table("asv_blast2_phyloseq_taxa_filtered.tsv",
-                                        sep = "\t", header = TRUE)
-
-        tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
-        na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
-        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
-
-    } else if (file.exists("asv_blast2_phyloseq_taxa.tsv")) {
-        seq_type            <- "ASV_SECOND_DB"
-        analysis_types      <- append(analysis_types, seq_type)
-        curr_taxa           <- read.table("asv_blast2_phyloseq_taxa.tsv",
-                                        sep = "\t", header = TRUE)
-
-        tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
-        na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
-        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
+    if (db_two) {
+        if (file.exists(paste0("asv_", db_two, "_phyloseq_taxa_filtered.tsv"))) {
+            seq_type            <- "ASV_SECOND_DB"
+            analysis_types      <- append(analysis_types, seq_type)
+            curr_taxa           <- read.table(paste0("asv_", db_two, "_phyloseq_taxa_filtered.tsv"),
+                                            sep = "\t", header = TRUE)
+    
+            tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
+            na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+            both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
+    
+        } else if (file.exists(paste0("asv_", db_two, "_phyloseq_taxa.tsv"))) {
+            seq_type            <- "ASV_SECOND_DB"
+            analysis_types      <- append(analysis_types, seq_type)
+            curr_taxa           <- read.table(paste0("asv_", db_two, "_phyloseq_taxa.tsv"),
+                                            sep = "\t", header = TRUE)
+    
+            tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
+            na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+            both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
+        }
+    
+        if (file.exists(paste0("asv_", db_two, "_lulucurated_phyloseq_taxa_filtered.tsv"))) {
+            seq_type            <- "ASV_LULUCURATED_SECOND_DB"
+            analysis_types      <- append(analysis_types, seq_type)
+            curr_taxa           <- read.table(paste0("asv_", db_two, "_lulucurated_phyloseq_taxa_filtered.tsv"),
+                                            sep = "\t", header = TRUE)
+    
+            tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
+            na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+            both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
+    
+        } else if (file.exists(paste0("asv_", db_two, "_lulucurated_phyloseq_taxa.tsv"))) {
+            seq_type            <- "ASV_LULUCURATED_SECOND_DB"
+            analysis_types      <- append(analysis_types, seq_type)
+            curr_taxa           <- read.table(paste0("asv_", db_two, "_lulucurated_phyloseq_taxa.tsv"),
+                                            sep = "\t", header = TRUE)
+    
+            tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
+            na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+            both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
+        }
+    
+        if (file.exists(paste0("zotu_", db_two, "_phyloseq_taxa_filtered.tsv"))) {
+            seq_type            <- "ZOTU_SECOND_DB"
+            analysis_types      <- append(analysis_types, seq_type)
+            curr_taxa           <- read.table(paste0("zotu_", db_two, "_phyloseq_taxa_filtered.tsv"),
+                                            sep = "\t", header = TRUE)
+    
+            tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
+            na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+            both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
+    
+        } else if (file.exists(paste0("zotu_", db_two, "_phyloseq_taxa.tsv"))) {
+            seq_type            <- "ZOTU_SECOND_DB"
+            analysis_types      <- append(analysis_types, seq_type)
+            curr_taxa           <- read.table(paste0("zotu_", db_two, "_phyloseq_taxa.tsv"),
+                                            sep = "\t", header = TRUE)
+    
+            tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
+            na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+            both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
+        }
+    
+        if (file.exists(paste0("zotu_", db_two, "_lulucurated_phyloseq_taxa_filtered.tsv"))) {
+            seq_type            <- "ZOTU_LULUCURATED_SECOND_DB"
+            analysis_types      <- append(analysis_types, seq_type)
+            curr_taxa           <- read.table(paste0("zotu_", db_two, "_lulucurated_phyloseq_taxa_filtered.tsv"),
+                                            sep = "\t", header = TRUE)
+    
+            tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
+            na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+            both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
+    
+        } else if (file.exists(paste0("zotu_", db_two, "_lulucurated_phyloseq_taxa.tsv"))) {
+            seq_type            <- "ZOTU_LULUCURATED_SECOND_DB"
+            analysis_types      <- append(analysis_types, seq_type)
+            curr_taxa           <- read.table(paste0("zotu_", db_two, "_lulucurated_phyloseq_taxa.tsv"),
+                                            sep = "\t", header = TRUE)
+    
+            tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
+            na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
+            both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
+        }
     }
-
-    if (file.exists("asv_blast2_lulucurated_phyloseq_taxa_filtered.tsv")) {
-        seq_type            <- "ASV_LULUCURATED_SECOND_DB"
-        analysis_types      <- append(analysis_types, seq_type)
-        curr_taxa           <- read.table("asv_blast2_lulucurated_phyloseq_taxa_filtered.tsv",
-                                        sep = "\t", header = TRUE)
-
-        tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
-        na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
-        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
-
-    } else if (file.exists("asv_blast2_lulucurated_phyloseq_taxa.tsv")) {
-        seq_type            <- "ASV_LULUCURATED_SECOND_DB"
-        analysis_types      <- append(analysis_types, seq_type)
-        curr_taxa           <- read.table("asv_blast2_lulucurated_phyloseq_taxa.tsv",
-                                        sep = "\t", header = TRUE)
-
-        tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
-        na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
-        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
-    }
-
-    if (file.exists("zotu_blast2_phyloseq_taxa_filtered.tsv")) {
-        seq_type            <- "ZOTU_SECOND_DB"
-        analysis_types      <- append(analysis_types, seq_type)
-        curr_taxa           <- read.table("zotu_blast2_phyloseq_taxa_filtered.tsv",
-                                        sep = "\t", header = TRUE)
-
-        tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
-        na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
-        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
-
-    } else if (file.exists("zotu_blast2_phyloseq_taxa.tsv")) {
-        seq_type            <- "ZOTU_SECOND_DB"
-        analysis_types      <- append(analysis_types, seq_type)
-        curr_taxa           <- read.table("zotu_blast2_phyloseq_taxa.tsv",
-                                        sep = "\t", header = TRUE)
-
-        tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
-        na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
-        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
-    }
-
-    if (file.exists("zotu_blast2_lulucurated_phyloseq_taxa_filtered.tsv")) {
-        seq_type            <- "ZOTU_LULUCURATED_SECOND_DB"
-        analysis_types      <- append(analysis_types, seq_type)
-        curr_taxa           <- read.table("zotu_blast2_lulucurated_phyloseq_taxa_filtered.tsv",
-                                        sep = "\t", header = TRUE)
-
-        tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
-        na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
-        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
-
-    } else if (file.exists("zotu_blast2_lulucurated_phyloseq_taxa.tsv")) {
-        seq_type            <- "ZOTU_LULUCURATED_SECOND_DB"
-        analysis_types      <- append(analysis_types, seq_type)
-        curr_taxa           <- read.table("zotu_blast2_lulucurated_phyloseq_taxa.tsv",
-                                        sep = "\t", header = TRUE)
-
-        tax_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA != "NA" & ! is.na(LCA)))
-        na_dfs[[seq_type]] <- list(filter(data.frame(curr_taxa), LCA == "NA" | is.na(LCA)))
-        both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
-    }
-
+    
     species  <- list()
     genus    <- list()
     family   <- list()
@@ -407,12 +434,12 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
     seq_types      <- c()
     analysis_types <- c()
 
-    if (file.exists("asv_blast_primer_contam_stats.txt")) {
+    if (file.exists(paste0("asv_", db_types, "_primer_contam_stats.txt"))) {
         seq_type            <- "ASV"
         seq_types           <- append(seq_types, seq_type)
         analysis_types      <- append(analysis_types, seq_type)
     }
-    if (file.exists("zotu_blast_primer_contam_stats.txt")) {
+    if (file.exists(paste0("zotu_", db_types, "_primer_contam_stats.txt"))) {
         seq_type            <- "ZOTU"
         analysis_types      <- append(analysis_types, seq_type)
     }

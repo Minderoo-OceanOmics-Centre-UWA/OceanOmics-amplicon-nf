@@ -195,8 +195,10 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
     db_one <- db_types[1]
     if (length(db_types) == 2) {
         db_two <- db_types[2]
+        db_two_exists <- TRUE
     } else {
         db_two <- FALSE
+        db_two_exists <- FALSE
     }
 
     if (file.exists(paste0("asv_", db_one, "_phyloseq_taxa_filtered.tsv"))) {
@@ -292,7 +294,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
 
 
-    if (db_two) {
+    if (db_two_exists) {
         if (file.exists(paste0("asv_", db_two, "_phyloseq_taxa_filtered.tsv"))) {
             seq_type            <- "ASV_SECOND_DB"
             analysis_types      <- append(analysis_types, seq_type)

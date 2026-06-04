@@ -120,14 +120,14 @@ class NCBITaxdumpParser:
 
         taxdump_tar = self.cache_dir / "taxdump.tar.gz"
 
-        if not taxdump_tar.exists():
-            self.logger.info("Downloading NCBI taxdump...")
-            try:
-                urlretrieve(Config.NCBI_TAXDUMP_URL, taxdump_tar)
-                self.logger.info(f"Downloaded taxdump to: {taxdump_tar}")
-            except Exception as e:
-                self.logger.error(f"Failed to download taxdump: {e}")
-                raise
+        #if not taxdump_tar.exists():
+        #    self.logger.info("Downloading NCBI taxdump...")
+        #    try:
+        #        urlretrieve(Config.NCBI_TAXDUMP_URL, taxdump_tar)
+        #        self.logger.info(f"Downloaded taxdump to: {taxdump_tar}")
+        #    except Exception as e:
+        #        self.logger.error(f"Failed to download taxdump: {e}")
+        #        raise
 
         self.logger.info("Extracting taxdump...")
         taxdump_dir.mkdir(exist_ok=True)
@@ -1055,6 +1055,12 @@ class BLASTLCAAnalyzer:
             phylum_lca = self.lca_calculator.calculate_lca(phylum_hits, use_bitwise)
             domain_lca = self.lca_calculator.calculate_lca(domain_hits, use_bitwise)
 
+            curr_species = species_lca.assignment.split(" ")[-1]
+            if curr_species == "cf." or curr_species == "sp.":
+                curr_species = "dropped"
+            else:
+                curr_species = species_lca.assignment
+
             new_row = {
                 'domain': domain_lca.assignment,
                 'phylum': phylum_lca.assignment,
@@ -1062,7 +1068,7 @@ class BLASTLCAAnalyzer:
                 'order': order_lca.assignment,
                 'family': family_lca.assignment,
                 'genus': genus_lca.assignment,
-                'species': species_lca.assignment,
+                'species': curr_species,
                 'OTU': asv_name,
                 'length': str(len(dna_seq)),
                 'numberOfUnq_BlastHits': i,
@@ -1116,6 +1122,11 @@ class BLASTLCAAnalyzer:
                 dna_seq = asv_sequences[asv_name]
             except KeyError:
                 dna_seq = "not applicable"
+
+            if specific_epithet == "cf." or specific_epithet == "sp.":
+                taxon_rank = "genus"
+                specific_epithet = "dropped"
+
 
             taxaFinal.append(
                 {

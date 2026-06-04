@@ -48,7 +48,6 @@ process GET_AQUAMAP_PROBS {
                         rownames(probs) <- longs
                         continue = TRUE
                     }, error = function(e) {
-                        out_df[spec_undscore, ] <- NA
                         continue = FALSE
                     })
 
@@ -76,7 +75,7 @@ process GET_AQUAMAP_PROBS {
                                     sample_lat <- max(lats)
 
                                 } else if (sample_lat < min(lats) | sample_lat > max(lats)) {
-                                    prob    <- NA
+                                    prob    <- "Invalid Lat"
                                     prob_na <- TRUE
                                 }
 
@@ -87,7 +86,7 @@ process GET_AQUAMAP_PROBS {
                                     sample_long <- max(longs)
 
                                 } else if (sample_long < min(longs) | sample_long > max(longs)) {
-                                    prob    <- NA
+                                    prob    <- "Invalid Long"
                                     prob_na <- TRUE
                                 }
 
@@ -104,11 +103,18 @@ process GET_AQUAMAP_PROBS {
                                     prob <- probs[toString(sample_long), toString(sample_lat)]
                                 }
 
-                                out_df[spec_undscore, sam] <- prob
+                                if (! is.na(prob) & prob != "NA") {
+                                    out_df[spec_undscore, sam] <- prob
+                                } else {
+                                    out_df[spec_undscore, sam] <- NA
+                                }
+
                             } else {
                                 out_df[spec_undscore, sam] <- NA
                             }
                         }
+                    } else {
+                        out_df[spec_undscore, ] <- "Problem with the nc file"
                     }
                 } else {
                     out_df[spec_undscore, ] <- "Species not in aquamaps"

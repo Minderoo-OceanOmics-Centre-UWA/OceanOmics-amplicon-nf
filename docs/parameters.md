@@ -16,6 +16,7 @@ All the parameters in the pipeline can be set in a config file, or they can be s
 - [fw_primer](#fw_primer) - Your forward primer. Can be a semi-colon seperated list of primers.
 - [rv_primer](#rv_primer) - Your reverse primer. Can be a semi-colon seperated list of primers.
 - [masterlist](#masterlist) - an optional fasta file of ASVs/zOTUs that have already been classified. Header should have taxonomy separated with semi-colons (e.g., >Eukaryota;Chordata;Actinopteri;Eupercaria;Scaridae;Scarus;dropped)
+- [aquamaps_db](#aquamaps_db) - an aquamaps database that you can download with this R package https://github.com/raquamaps/aquamapsdata. If you don't have a database, the pipeline will attempt to retrieve data from 2019
 - [assay](#assay) - The assay of your data if you want certain parameters chosen automatically. The assay will also be added to filenames. Currently supports `16SFish`, `16SMam`, `MiFish`, `12SV5`, and `COILeray`. The `-c` option can be used to provide a custom map with other assays. More information can be found [here](https://github.com/MinderooFoundation/OceanOmics-amplicon-nf/blob/master/docs/custom_config.md)
 - [project_id](#project_id) - The project ID will be added to filenames.
 - [seq_run_id](#seq_run_id) - The ID of the sequencing run that your data is from. This will be added to the FAIRe metadata file

@@ -114,13 +114,14 @@ process CREATE_FAIRE_METADATA {
             # Faster than reading sheet back in
             existing_rows <- nrow(readWorkbook(wb, sheet = sheet, colNames = TRUE))
 
-            writeData(
-                wb,
-                sheet = sheet,
-                x = data,
-                startRow = existing_rows + 2,
-                colNames = FALSE
-            )
+            #writeData(
+            #    wb,
+            #    sheet = sheet,
+            #    x = data,
+            #    startRow = existing_rows + 2,
+            #    colNames = FALSE
+            #)
+            writeDataTable(wb, sheet = sheet, x = data, startCol = 1, startRow = existing_rows + 1)
         }
     }
 

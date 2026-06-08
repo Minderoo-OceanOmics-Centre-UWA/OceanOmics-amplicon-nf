@@ -1042,8 +1042,8 @@ class BLASTLCAAnalyzer:
                         else:
                             taxon_rank = "species"
 
-                        taxon_id_db = infer_taxon_db(top_taxon_id)
-                        accession_id_db = infer_accession_db(top_accession_id)
+                        taxon_id_db = infer_taxon_db(taxon_id)
+                        accession_id_db = infer_accession_db(accession_id)
 
                         taxaRaw.append(
                             {
@@ -1068,6 +1068,7 @@ class BLASTLCAAnalyzer:
                                 'percent_query_cover': qcov,
                                 'confidence_score': evalue,
                                 'identificationRemarks': "The Lowest Common Ancestor script used is found here https://github.com/Computational-Biology-OceanOmics/LCA_With_Fishbase",
+                                'taxonRank_db': source,
                                 'length': str(len(dna_seq))
                             }
                         )
@@ -1180,6 +1181,7 @@ class BLASTLCAAnalyzer:
                     'percent_query_cover': top_qcov,
                     'confidence_score': top_evalue,
                     'identificationRemarks': "The Lowest Common Ancestor script used is found here https://github.com/Computational-Biology-OceanOmics/LCA_With_Fishbase",
+                    'taxonRank_db': source,
                     'length': str(len(dna_seq))
                 }
             )

@@ -24,6 +24,30 @@ import pandas as pd
 #import ssl
 #ssl._create_default_https_context = ssl._create_unverified_context
 
+def infer_taxon_db(taxon_id: str) -> str:
+    if not taxon_id or taxon_id == 'N/A' or taxon_id == "not applicable":
+        return 'not applicable'
+    return 'NCBI'
+ 
+ 
+def infer_accession_db(accession_id: str) -> str:
+    """Infer reference database from accession ID format."""
+    if not accession_id or accession_id == 'N/A' or accession_id == "not applicable":
+        return 'not applicable'
+    if accession_id.startswith('NBDL'):
+        return 'NBDL'
+    if accession_id.startswith('OG'):
+        return 'OG'
+    if accession_id.startswith('gb'):
+        return 'GenBank'
+    if accession_id.startswith('dbj'):
+        return 'DDBJ'
+    if accession_id[0].isdigit():
+        return 'BOLD'
+    if accession_id.startswith('gi'):
+        return 'GenBank'
+    return 'unknown'
+
 @dataclass
 class Config:
     """Configuration settings for the LCA analysis."""
@@ -1018,6 +1042,9 @@ class BLASTLCAAnalyzer:
                         else:
                             taxon_rank = "species"
 
+                        taxon_id_db = infer_taxon_db(top_taxon_id)
+                        accession_id_db = infer_accession_db(top_accession_id)
+
                         taxaRaw.append(
                             {
                                 'seq_id': asv_name,
@@ -1033,10 +1060,10 @@ class BLASTLCAAnalyzer:
                                 'scientificNameAuthorship': author,
                                 'taxonRank': taxon_rank,
                                 'taxonID': taxon_id,
-                                'taxonID_db': source,
+                                'taxonID_db': taxon_id_db,
                                 'verbatimIdentification': verbatim_label,
                                 'accession_id': accession_id,
-                                'accession_id_ref_db': source,
+                                'accession_id_ref_db': accession_id_db,
                                 'percent_match': pident,
                                 'percent_query_cover': qcov,
                                 'confidence_score': evalue,
@@ -1127,6 +1154,8 @@ class BLASTLCAAnalyzer:
                 taxon_rank = "genus"
                 specific_epithet = "dropped"
 
+            taxon_id_db = infer_taxon_db(top_taxon_id)
+            accession_id_db = infer_accession_db(top_accession_id)
 
             taxaFinal.append(
                 {
@@ -1143,10 +1172,10 @@ class BLASTLCAAnalyzer:
                     'scientificNameAuthorship': author,
                     'taxonRank': taxon_rank,
                     'taxonID': top_taxon_id,
-                    'taxonID_db': ", ".join(sources),
+                    'taxonID_db': taxon_id_db,
                     'verbatimIdentification': top_verbatim_label,
                     'accession_id': top_accession_id,
-                    'accession_id_ref_db': ", ".join(sources),
+                    'accession_id_ref_db': accession_id_db,
                     'percent_match': top_pident,
                     'percent_query_cover': top_qcov,
                     'confidence_score': top_evalue,

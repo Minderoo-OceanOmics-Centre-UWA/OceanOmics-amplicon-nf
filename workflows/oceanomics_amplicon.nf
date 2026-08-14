@@ -216,6 +216,8 @@ workflow OCEANOMICS_AMPLICON {
     )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
+    ch_reads_raw = INPUT_CHECK.out.reads
+
     //
     // SUBWORKFLOW: Demultiplex with cutadapt
     //
@@ -287,15 +289,15 @@ workflow OCEANOMICS_AMPLICON {
             params.rv_primer
         )
 
-        ch_reads_collected = ch_reads.map{ it = it[1] }.collect().map{ it = ["prefilter", it] }
+        ch_reads_raw_collected = ch_reads_raw.map{ it = it[1] }.collect().map{ it = ["prefilter", it] }
 
         PREFILTERING_STATS (
-            ch_reads_collected,
+            ch_reads_raw_collected,
             "prefilter"
         )
 
         INPUTFILE_INFO (
-            ch_reads
+            ch_reads_raw
         )
         CONCATFILE_INFO (
             INPUTFILE_INFO.out.csv.map{ it = it[1] }.collect().map { it = ["collected", it] }

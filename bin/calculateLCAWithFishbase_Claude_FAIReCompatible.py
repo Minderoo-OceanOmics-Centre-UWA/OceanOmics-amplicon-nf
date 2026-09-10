@@ -872,6 +872,9 @@ class BLASTLCAAnalyzer:
                             taxids = elements[2].split(';')
                             taxid = taxids[0] if taxids else None
 
+                        if taxid == "0":
+                            taxid = None
+
                         species_info = self.assigner.find_species_info(
                             line_elements, taxid
                         )
@@ -1067,7 +1070,7 @@ class BLASTLCAAnalyzer:
                                 'percent_match': pident,
                                 'percent_query_cover': qcov,
                                 'confidence_score': evalue,
-                                'identificationRemarks': "The Lowest Common Ancestor script used is found here https://github.com/Computational-Biology-OceanOmics/LCA_With_Fishbase",
+                                'identificationRemarks': "The Lowest Common Ancestor script used is found here https://github.com/Minderoo-OceanOmics-Centre-UWA/OceanOmics-amplicon-nf/blob/master/bin/calculateLCAWithFishbase_Claude_FAIReCompatible.py",
                                 'taxonRank_db': source,
                                 'length': str(len(dna_seq))
                             }

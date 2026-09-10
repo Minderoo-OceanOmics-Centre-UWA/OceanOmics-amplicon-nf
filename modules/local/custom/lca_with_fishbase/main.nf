@@ -9,6 +9,7 @@ process LCA_WITH_FISHBASE {
     input:
     tuple val(prefix), path(table), path(blast_results)
     path(worms)
+    //path(taxdump)
 
     output:
     tuple val(prefix), path("*_lca_with_fishbase_output.tsv"), emit: lca_output
@@ -23,6 +24,8 @@ process LCA_WITH_FISHBASE {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${prefix}"
     """
+    mkdir cache
+    mv ${taxdump} cache
     calculateLCAWithFishbase_Claude_FAIReCompatible.py \\
         -f ${blast_results} \\
         -o ${prefix}_lca_with_fishbase_output.tsv \\

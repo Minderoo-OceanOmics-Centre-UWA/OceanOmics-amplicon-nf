@@ -196,6 +196,7 @@ include { INPUTFILE_INFO                                         } from '../modu
 include { CONCATFILE_INFO                                        } from '../modules/local/custom/concatfile_info/main'
 include { FILT_WITH_MASTERLIST                                   } from '../modules/local/custom/filt_with_masterlist/main'
 include { ADD_BACK_MASTERLIST                                    } from '../modules/local/custom/add_back_masterlist/main'
+//include { CREATE_MERGED_TAXA_TABLE                               } from '../modules/local/custom/create_merged_taxa_table/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -216,8 +217,6 @@ workflow OCEANOMICS_AMPLICON {
     )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
-    ch_reads_raw = INPUT_CHECK.out.reads
-
     //
     // SUBWORKFLOW: Demultiplex with cutadapt
     //
@@ -233,12 +232,8 @@ workflow OCEANOMICS_AMPLICON {
             ch_demux_reads              = ALT_CUTADAPT_WORKFLOW.out.reads
             ch_raw_stats_collected      = []
             ch_assigned_stats_collected      = []
-            //ch_assigned_stats           = ALT_CUTADAPT_WORKFLOW.out.assigned_stats
-            //ch_assigned_stats_collected = ch_assigned_stats.map{ it = it[1] }.collect()
 
             ch_demux_reads = ch_demux_reads.map{ it = it[1] }.collect().map { it = ["collected", it] }
-            //ch_reads_filt    = DADA2_FILTERANDTRIM.out.reads.map { it[1] }.collect()
-            //INPUTFILE_INFO.out.csv.map{ it = it[1] }.collect().map { it = ["collected", it] }
 
             ALT_POSTDEMUX_WORKFLOW (
                 ch_demux_reads,
@@ -289,15 +284,15 @@ workflow OCEANOMICS_AMPLICON {
             params.rv_primer
         )
 
-        ch_reads_raw_collected = ch_reads_raw.map{ it = it[1] }.collect().map{ it = ["prefilter", it] }
+        ch_reads_collected = ch_reads.map{ it = it[1] }.collect().map{ it = ["prefilter", it] }
 
         PREFILTERING_STATS (
-            ch_reads_raw_collected,
+            ch_reads_collected,
             "prefilter"
         )
 
         INPUTFILE_INFO (
-            ch_reads_raw
+            ch_reads
         )
         CONCATFILE_INFO (
             INPUTFILE_INFO.out.csv.map{ it = it[1] }.collect().map { it = ["collected", it] }
@@ -728,7 +723,8 @@ workflow OCEANOMICS_AMPLICON {
             //
             LCA_WITH_FISHBASE (
                 ch_lca_input,
-                ch_worms.first()
+                ch_worms.first()//,
+                //file(params.taxdump)
             )
             ch_versions = ch_versions.mix(LCA_WITH_FISHBASE.out.versions.first())
 
@@ -922,6 +918,10 @@ workflow OCEANOMICS_AMPLICON {
                 ch_taxa_otu,
                 ADD_EXPERIMENTRUNMETADATA.out.xlsx.first()
             )
+
+//            CREATE_MERGED_TAXA_TABLE (
+//                CREATE_FAIRE_METADATA.out.xlsx.collect()
+//            )
         } else {
             ch_notaxa_otu = RENAME_OTURAW.out.otu_raw.join(REFORMAT_OTUFINAL.out.otu_final)
 

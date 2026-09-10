@@ -39,6 +39,9 @@
                     "description": "Path to raw data file/s (use {1,2} or {R1,R2} in path to select paired end raw data). Make sure to wrap path in quotes.",
                     "fa_icon": "fas fa-file-import"
                 },
+                "taxdump": {
+                    "format": "file-path"
+                },
                 "binddir": {
                     "type": "string",
                     "format": "file-path",

@@ -23,7 +23,10 @@ process AQUAMAPS {
     import pandas as pd
 
     def round_to_25_or_75(x):
-        base = int(x)
+        try:
+            base = int(x)
+        except:
+            base = int(float(x))
         frac = abs(x - base)
 
         if frac < 0.5:
@@ -41,7 +44,10 @@ process AQUAMAPS {
                 return base - 0.75
 
     def round_to_closest_50(x):
-        base = int(x)
+        try:
+            base = int(x)
+        except:
+            base = int(float(x))
         frac = abs(x - base)
 
         if frac >= 0.75:
@@ -67,8 +73,10 @@ process AQUAMAPS {
         samp_df = pd.read_csv("${samplesheet}", sep = ",") # samp_name decimalLatitude decimalLongitude
         taxa_df = pd.read_csv("${final_taxa}", sep = "\\t").fillna("NA") # species
         hits = list(set(taxa_df['species']))
-        hits.remove("dropped")
-        hits.remove("NA")
+        if "dropped" in hits:
+            hits.remove("dropped")
+        if "NA" in hits:
+            hits.remove("NA")
 
         prob_df = pd.DataFrame(columns = list(samp_df['samp_name']),  index = hits)
 

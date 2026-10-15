@@ -39,7 +39,7 @@ All the parameters in the pipeline can be set in a config file, or they can be s
 
 ### Trim parameters
 
-- [primertrim_error](#primertrim_error) - The error rate to allow mismatches when trimming primer sequences, default = 0
+- [primertrim_error](#primertrim_error) - The maximum number of mismatches (an integer, passed to cutadapt `-e`) allowed when matching primers at the start of each read, default = 0. Reads in which a primer is not found are discarded, so with the default of 0 any read whose primer region differs from the primer sequence by even one base is lost. If many reads are being dropped at the primer-trimming step (compare the `prefilter` and `final` seqkit stats), try a small value such as 1 or 2.
 - [seqtk_trim](#seqtk_trim) - Option to use seqtk to trim BPs after a length cutoff
 - [seqtk_length](#seqth_length) - Cutoff length to used with seqtk_trim. Every BP after the cutoff will be trimmed off; default = 180
 - [fastp_trim](#fastp_trim) - Option to use fastp to trim BPs from each end using a sliding window

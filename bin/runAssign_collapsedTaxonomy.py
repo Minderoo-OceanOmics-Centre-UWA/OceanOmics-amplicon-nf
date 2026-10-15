@@ -16,11 +16,12 @@ import working_function as wf
 # define commands for downloading taxonomy database from NCBI and saving it in a folder with the current date
 # if folder exists, it overwrites it
 getLineage = """
+set -e
 d="$(date +"%d-%m-%Y")"
 mkdir ${d}_taxdump
 cd ${d}_taxdump
-wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.zip
-unzip new_taxdump.zip
+wget --tries=5 --retry-connrefused --waitretry=10 ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.zip
+unzip -q new_taxdump.zip
 mv rankedlineage.dmp ..
 cd ..
 tr -d "\t" < rankedlineage.dmp > rankedlineage_tabRemoved.dmp
@@ -34,7 +35,8 @@ process = subprocess.Popen(
 )
 ## execute getLineage command and print output on the screen
 out, err = process.communicate(getLineage)
-out
+if process.returncode != 0:
+    sys.exit("Failed to download or unpack the NCBI taxdump (see messages above)")
 
 
 # setting up input parameters

@@ -23,7 +23,7 @@ process FASTQRELABEL {
     for file in ${reads}
     do
         #zcat "\$file" | sed "s/^@.*/@\${prefix}/" | gzip > "\${prefix}_R\${i}_relabeled.fq.gz"
-        zcat "\$file" | awk 'NR % 4 == 1 {print "@'${prefix}'"} NR % 4 != 1 {print}' | gzip > "${prefix}_R\${i}_relabeled.fq.gz"
+        zcat "\$file" | awk 'NR % 4 == 1 {print "@'${prefix}';sample='${prefix}'"} NR % 4 != 1 {print}' | gzip > "${prefix}_R\${i}_relabeled.fq.gz"
         i=\$((i+1))
     done
 

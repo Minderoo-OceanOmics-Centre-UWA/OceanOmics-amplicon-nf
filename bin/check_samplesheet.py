@@ -197,7 +197,7 @@ def check_samplesheet(file_in, file_out, skip_demux):
         This function checks that the samplesheet follows the following structure,
         see also the `viral recon samplesheet`_::
 
-            sample,fastq_1,fastq_2
+            samp_name,fastq_1,fastq_2
             SAMPLE_PE,SAMPLE_PE_RUN1_1.fastq.gz,SAMPLE_PE_RUN1_2.fastq.gz
             SAMPLE_PE,SAMPLE_PE_RUN2_1.fastq.gz,SAMPLE_PE_RUN2_2.fastq.gz
             SAMPLE_SE,SAMPLE_SE_RUN1_1.fastq.gz,

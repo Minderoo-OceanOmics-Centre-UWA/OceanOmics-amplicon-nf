@@ -177,6 +177,9 @@
                 },
                 "primertrim_error": {
                     "type": "integer",
+                    "description": "Maximum number of mismatches allowed when matching primers at the start of each read (cutadapt -e).",
+                    "help_text": "Reads in which a primer is not found are discarded, so the default of 0 drops any read whose primer region differs from the primer sequence.",
+                    "minimum": 0,
                     "default": 0
                 },
                 "zotu_min_quality": {

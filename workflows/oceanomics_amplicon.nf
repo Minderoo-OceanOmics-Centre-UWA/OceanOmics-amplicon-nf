@@ -117,7 +117,10 @@ ch_curated_fasta = Channel.empty()
 ch_pngs = Channel.empty()
 ch_raw_data = Channel.empty()
 ch_ulimit = Channel.empty()
-ch_db = Channel.fromPath(params.dbfiles).collect()
+if (!params.dbfiles && !params.skip_classification) {
+    exit 1, 'dbfiles must be specified unless --skip_classification is used'
+}
+ch_db = params.dbfiles ? Channel.fromPath(params.dbfiles).collect() : Channel.empty()
 if (params.blast_twice) {
     ch_db2 = Channel.fromPath(params.dbfiles2).collect()
 }
@@ -865,7 +868,8 @@ workflow OCEANOMICS_AMPLICON {
         ch_taxa_raw = [[], []]
         ch_proportionalfilter_stats = [[], []]
         ch_filtered_table = ch_curated_table
-        ch_phyloseq = FLAG_OTUS_OUTSIDERANGE.out.phyloseq_object
+        // PHYLOSEQ and FLAG_OTUS_OUTSIDERANGE are not run when classification is skipped
+        ch_phyloseq = Channel.empty()
     }
 
     //

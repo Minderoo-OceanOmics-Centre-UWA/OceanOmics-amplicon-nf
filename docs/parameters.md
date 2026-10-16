@@ -52,6 +52,7 @@ All the parameters in the pipeline can be set in a config file, or they can be s
 
 - [zotu_min_quality](#zotu_min_quality) - default = 10
 - [zotu_min_align_leng](#zotu_min_align_leng) - default = 6
+- [collapse_deterministic](#collapse_deterministic) - default = true. When merging paired reads, AdapterRemoval sets disagreeing overlap bases of equal quality to N instead of picking one at random, so repeated runs give identical merged reads. Set to false for the previous behaviour
 - [zotu_min_size](#zotu_min_size) - default = 8
 - [zotu_id](#zotu_id) - default = 0.97
 - [zotu_mode](#zotu_mode) - default = "vsearch", can also be "usearch32", or "usearch64"

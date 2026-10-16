@@ -23,22 +23,19 @@ workflow LULU_WORKFLOW {
 
     // Create blast list with blastn
     BLAST_MATCHLIST (
-        ch_fasta,
-        BLAST_MAKEBLASTDB.out.db
+        ch_fasta.join(BLAST_MAKEBLASTDB.out.db)
     )
     ch_versions = ch_versions.mix(BLAST_MATCHLIST.out.versions)
 
     // Run LULU
     LULU (
-        ch_table,
-        BLAST_MATCHLIST.out.txt
+        ch_table.join(BLAST_MATCHLIST.out.txt)
     )
     ch_versions = ch_versions.mix(LULU.out.versions)
 
     // Get a curated fasta file
     GETLULUFASTA (
-        ch_fasta,
-        LULU.out.curated_table
+        ch_fasta.join(LULU.out.curated_table)
     )
 
     emit:

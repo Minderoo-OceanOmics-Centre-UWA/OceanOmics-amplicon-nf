@@ -8,7 +8,7 @@ process BLAST_MAKEBLASTDB {
     tuple val(prefix), path(fasta)
 
     output:
-    path '*_db'        , emit: db
+    tuple val(prefix), path('*_db'), emit: db
     path "versions.yml", emit: versions
 
     when:

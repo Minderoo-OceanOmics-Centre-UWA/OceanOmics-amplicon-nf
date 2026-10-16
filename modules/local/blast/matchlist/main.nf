@@ -5,11 +5,10 @@ process BLAST_MATCHLIST {
     container 'quay.io/biocontainers/blast:2.13.0--hf3cf87c_0'
 
     input:
-    tuple val(prefix), path(fasta)
-    path db
+    tuple val(prefix), path(fasta), path(db)
 
     output:
-    path "*.txt"       , emit: txt
+    tuple val(prefix), path("*.txt"), emit: txt
     path "versions.yml", emit: versions
 
     when:

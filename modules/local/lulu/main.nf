@@ -4,8 +4,7 @@ process LULU {
     container 'mahsamousavi/lulu:2019'
 
     input:
-    tuple val(prefix), path(table)
-    path match_list
+    tuple val(prefix), path(table), path(match_list)
 
     output:
     tuple val(prefix), path("*curated_table.tab"), emit: curated_table

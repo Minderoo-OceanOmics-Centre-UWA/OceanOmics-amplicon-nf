@@ -4,8 +4,7 @@ process GETLULUFASTA {
     container 'ubuntu:20.04'
 
     input:
-    tuple val(prefix), path(fasta)
-    tuple val(prefix), path(curated_table)
+    tuple val(prefix), path(fasta), path(curated_table)
 
     output:
     tuple val(prefix), path("*.fa"), emit: fasta

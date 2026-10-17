@@ -54,6 +54,7 @@ All the parameters in the pipeline can be set in a config file, or they can be s
 - [zotu_min_align_leng](#zotu_min_align_leng) - default = 6
 - [zotu_min_size](#zotu_min_size) - default = 8
 - [zotu_id](#zotu_id) - default = 0.97
+- [zotu_qmask](#zotu_qmask) - masking VSEARCH applies in unoise clustering, chimera detection and read mapping (vsearch mode only); default = "dust" (the VSEARCH default), can also be "none" or "soft". Low-complexity amplicons (for example AT-rich mitochondrial 16S) are split into many extra ZOTUs under "dust"; "none" avoids that
 - [zotu_mode](#zotu_mode) - default = "vsearch", can also be "usearch32", or "usearch64"
 - [usearch64](#usearch64) - Full path to where usearch64 bit version is stored locally
 

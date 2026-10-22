@@ -81,7 +81,7 @@ def main():
         acc_total = [[]]  # make an empty list to store all intermediate data for taxaRaw.csv
         i = 0  # define flag used to detect first line of the temporary file
         linenr = 0  # current line number
-        loccnt = 6  # local column counter
+        loccnt = 5  # local column counter
         for line in file:
             # This will remove not helpfull assignments as set inside '' in below line,
             # but will still keep them in intermediate file for record
@@ -132,20 +132,22 @@ def main():
                 # for the next lines
                 else:
                     # if the column 'OTU' is equal to the 'OTU' of the last line in acc
-                    # compare remaining columns (number 0 - 6)
-                    if ll[7] == acc[linenr][7]:
-                        loccnt = 6  # reset column counter to the value 6
+                    # compare the taxonomy columns (number 0 - 5, phylum to species).
+                    # 'line.strip()' above removes the empty leading domain field, so the
+                    # layout here is phylum..species = 0-5, OTU = 6, subject id = 7.
+                    if ll[6] == acc[linenr][6]:
+                        loccnt = 5  # reset column counter to the last taxonomy column (species)
 
                         # for each column
-                        while loccnt > 0:
+                        while loccnt >= 0:
                             # if the values are not equal, or one of them is empty,
                             # replace the column value in the last line of acc with phase "dropped"
                             # and repeat replacement for all columns after investigated column
-                            # (current column to column number 6)
+                            # (current column to column number 5)
                             if ll[loccnt] != acc[linenr][loccnt] and (
                                 ll[loccnt] != "" or acc[linenr][loccnt] != ""
                             ):
-                                c = 6
+                                c = 5
                                 while c >= loccnt:
                                     acc[linenr][c] = "dropped"
                                     c -= 1

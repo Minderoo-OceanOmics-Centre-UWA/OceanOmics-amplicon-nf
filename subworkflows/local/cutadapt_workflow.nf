@@ -12,7 +12,6 @@ include { SEQKIT_STATS as \
             UNKNOWN_STATS;
             SEQKIT_STATS as \
             RAW_STATS                    } from '../../modules/local/seqkit_stats/main.nf'
-include { CONCAT                         } from '../../modules/local/custom/concat/main.nf'
 
 workflow CUTADAPT_WORKFLOW {
     take:
@@ -63,16 +62,7 @@ workflow CUTADAPT_WORKFLOW {
         )
         ch_versions = ch_versions.mix(UNKNOWN_STATS.out.versions)
 
-        // MODULE: Trim leftover primers and concatenate files so that there is only one R1 and one R2 file per sample
-        // NOTE: This process initially was being used to trim primers and concatenate files, now it's just concatenating.
-        //       the trimming of primers is now being done by Cutadapt later in the pipeline
-        CONCAT (
-            RENAME.out.reads,
-            ch_input
-        )
-        ch_versions = ch_versions.mix(CONCAT.out.versions)
-
-        ch_demuxed_reads = CONCAT.out.reads
+        ch_demuxed_reads = RENAME.out.reads
     } else {
         CUTADAPT_DEMUX_UDI (
             ch_raw_data,

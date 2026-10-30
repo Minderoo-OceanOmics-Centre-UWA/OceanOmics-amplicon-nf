@@ -327,24 +327,31 @@ class DatabaseManager:
         merged['full_species'] = merged['Genus'] + ' ' + merged['Species']
         merged['genus_family'] = merged['Genus'] + ' ' + merged['Family']
 
+        merged['Domain'] = ""
+        merged['Phylum'] = ""
+
+        merged.loc[merged["Class"] == "Actinopteri", "Phylum"] = "Chordata"
+        merged.loc[merged["Class"] == "Teleostei", "Phylum"] = "Chordata"
+        merged.loc[merged["Class"] == "Elasmobranchii", "Phylum"] = "Chordata"
+        merged.loc[merged["Class"] == "Actinopteri", "Domain"] = "Eukaryota"
+        merged.loc[merged["Class"] == "Teleostei", "Domain"] = "Eukaryota"
+        merged.loc[merged["Class"] == "Elasmobranchii", "Domain"] = "Eukaryota"
+
         # Key: genus. value: the whole lineage
         genera_to_lineage = (
-            merged.assign(Phylum="Unknown", Domain="Unknown")
-            .groupby('Genus')[['Family', 'Order', 'Class', 'Phylum', 'Domain']]
+            merged.groupby('Genus')[['Family', 'Order', 'Class', 'Phylum', 'Domain']]
             .first()
             .apply(lambda x: x.tolist(), axis=1)
             .to_dict()
         )
         species_to_lineage = (
-            merged.assign(Phylum="Unknown", Domain="Unknown")
-            .groupby('full_species')[['Family', 'Order', 'Class', 'Phylum', 'Domain']]
+            merged.groupby('full_species')[['Family', 'Order', 'Class', 'Phylum', 'Domain']]
             .first()
             .apply(lambda x: x.tolist(), axis=1)
             .to_dict()
         )
         genus_family_to_lineage = (
-            merged.assign(Phylum="Unknown", Domain="Unknown")
-            .groupby('genus_family')[['Family', 'Order', 'Class', 'Phylum', 'Domain']]
+            merged.groupby('genus_family')[['Family', 'Order', 'Class', 'Phylum', 'Domain']]
             .first()
             .apply(lambda x: x.tolist(), axis=1)
             .to_dict()
@@ -394,10 +401,13 @@ class DatabaseManager:
 
             #worms_df['Species'] = worms_df['Species'].str.strip()
             worms_df['genus_family'] = worms_df['Genus'] + ' ' + worms_df['Family']
+            worms_df['Domain'] = ""
 
+            worms_df.loc[worms_df["Class"] == "Actinopteri", "Domain"] = "Eukaryota"
+            worms_df.loc[worms_df["Class"] == "Teleostei", "Domain"] = "Eukaryota"
+            worms_df.loc[worms_df["Class"] == "Elasmobranchii", "Domain"] = "Eukaryota"
             genera_to_lineage = (
-                worms_df.assign(Domain="Unknown")
-                .groupby('Genus')[
+                worms_df.groupby('Genus')[
                     ['Family', 'Order', 'Class', 'Phylum', 'Domain']
                 ]
                 .first()
@@ -405,8 +415,7 @@ class DatabaseManager:
                 .to_dict()
             )
             species_to_lineage = (
-                worms_df.assign(Domain="Unknown")
-                .groupby('Species')[
+                worms_df.groupby('Species')[
                     ['Family', 'Order', 'Class', 'Phylum', 'Domain']
                 ]
                 .first()
@@ -414,8 +423,7 @@ class DatabaseManager:
                 .to_dict()
             )
             genus_family_to_lineage = (
-                worms_df.assign(Domain="Unknown")
-                .groupby('genus_family')[
+                worms_df.groupby('genus_family')[
                     ['Family', 'Order', 'Class', 'Phylum', 'Domain']
                 ]
                 .first()
@@ -577,22 +585,23 @@ class TaxonomicAssigner:
         # Fishbase comes first,
         if check_fishbase:
             genus, species, lineage = self._search_fishbase(line_elements)
+            
             if genus:
                 # We want Teleostei to have the Actinopteri label
                 if (lineage.class_name == 'Teleostei'):
                     lineage.class_name = 'Actinopteri'
 
                 # Try to get the domain/phylum info from ncbi
-                if taxid:
-                    if lineage_ncbi:
-                        lineage.domain = lineage_ncbi.domain
-                        lineage.phylum = lineage_ncbi.phylum
-                        return genus, species, 'fishbase', lineage
-                    else:
-                        return genus, species, 'fishbase', lineage
+                #if taxid:
+                #    if lineage_ncbi:
+                #        lineage.domain = lineage_ncbi.domain
+                #        lineage.phylum = lineage_ncbi.phylum
+                #        return genus, species, 'fishbase', lineage
+                #    else:
+                #        return genus, species, 'fishbase', lineage
 
-                else:
-                    return genus, species, 'fishbase', lineage
+                #else:
+                return genus, species, 'fishbase', lineage
 
             # then WoRMs,
             genus, species, lineage = self._search_worms(line_elements)
@@ -624,7 +633,6 @@ class TaxonomicAssigner:
         # Direct genus match
         for i, element in enumerate(elements[:-1]):
             if element in self.fishbase_genera:
-                #exit(elements)
                 genus = element
                 species_part = elements[i + 1]
                 family, order, class_name, phylum, domain = self.fishbase_genera[genus]
@@ -770,7 +778,6 @@ class BLASTLCAAnalyzer:
         fishbase_genus_family, fishbase_species, fishbase_genera, fishbase_speccode, fishbase_synonyms = (
             self.db_manager.load_fishbase_data()
         )
-        #exit(fishbase_genera)
 
         # Load WoRMS data
         worms_genus_family, worms_full_species, worms_genera, worms_species = self.db_manager.load_worms_data(

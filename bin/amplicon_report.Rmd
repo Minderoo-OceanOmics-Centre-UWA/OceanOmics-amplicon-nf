@@ -115,6 +115,40 @@ if (file.exists("final_stats.tsv") &&
     sample_type_exists <- FALSE
 }
 
+
+########################################
+# BP length of reads
+########################################
+if (file.exists("final_seqkit_stats.txt")) {
+    bp_bool <- TRUE
+    trimmed_stats   <- read.table("final_seqkit_stats.txt",
+                                header = TRUE, fill = TRUE) %>%
+                                data.frame()
+
+    len_median      <- median(trimmed_stats$Q2)
+    sams_outside_sd <- c()
+    lens_outside_sd <- c()
+    for (file in trimmed_stats$file) {
+        if (trimmed_stats[trimmed_stats$file == file, "Q2"] >= len_median + 10 | trimmed_stats[trimmed_stats$file == file, "Q2"] <= len_median - 10) {
+            sam             <- sub("trimmed_trimmed_", "", file)
+            sam             <- sub(".R1.fq.gz", "", sam)
+            sam             <- sub(".R2.fq.gz", "", sam)
+            sams_outside_sd <- c(sams_outside_sd, sam)
+            lens_outside_sd <- c(lens_outside_sd, trimmed_stats[trimmed_stats$file == file, "Q2"])
+        }
+    }
+    bp_df   <- data.frame(Sample = sams_outside_sd, Median_BP_Length = lens_outside_sd)
+    if (nrow(bp_df) == 0) {
+        bp_bool <- FALSE
+        bp_good <- TRUE
+    } else {
+        bp_good <- FALSE
+    }
+} else {
+    bp_bool <- FALSE
+    bp_good <- FALSE
+}
+
 ########################################
 # MISSING SAMPLES
 ########################################
@@ -202,7 +236,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
     }
 
     if (file.exists(paste0("asv_", db_one, "_phyloseq_taxa_filtered.tsv"))) {
-        seq_type            <- "ASV"
+        seq_type            <- paste0("ASV_", db_one)
         analysis_types      <- append(analysis_types, seq_type)
         seq_types           <- append(seq_types, seq_type)
         curr_taxa           <- read.table(paste0("asv_", db_one, "_phyloseq_taxa_filtered.tsv"),
@@ -213,7 +247,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
         both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
 
     } else if (file.exists(paste0("asv_", db_one, "_phyloseq_taxa.tsv"))) {
-        seq_type            <- "ASV"
+        seq_type            <- paste0("ASV_", db_one)
         analysis_types      <- append(analysis_types, seq_type)
         seq_types           <- append(seq_types, seq_type)
         curr_taxa           <- read.table(paste0("asv_", db_one, "_phyloseq_taxa.tsv"),
@@ -225,7 +259,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
     }
 
     if (file.exists(paste0("asv_", db_one, "_lulucurated_phyloseq_taxa_filtered.tsv"))) {
-        seq_type            <- "ASV_LULUCURATED"
+        seq_type            <- paste0("ASV_LULUCURATED_", db_one)
         analysis_types      <- append(analysis_types, seq_type)
         curr_taxa           <- read.table(paste0("asv_", db_one, "_lulucurated_phyloseq_taxa_filtered.tsv"),
                                         sep = "\t", header = TRUE)
@@ -235,7 +269,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
         both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
 
     } else if (file.exists(paste0("asv_", db_one, "_lulucurated_phyloseq_taxa.tsv"))) {
-        seq_type            <- "ASV_LULUCURATED"
+        seq_type            <- paste0("ASV_LULUCURATED_", db_one)
         analysis_types      <- append(analysis_types, seq_type)
         curr_taxa           <- read.table(paste0("asv_", db_one, "_lulucurated_phyloseq_taxa.tsv"),
                                         sep = "\t", header = TRUE)
@@ -246,7 +280,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
     }
 
     if (file.exists(paste0("zotu_", db_one, "_phyloseq_taxa_filtered.tsv"))) {
-        seq_type            <- "ZOTU"
+        seq_type            <- paste0("ZOTU_", db_one)
         analysis_types      <- append(analysis_types, seq_type)
         seq_types           <- append(seq_types, seq_type)
         curr_taxa           <- read.table(paste0("zotu_", db_one, "_phyloseq_taxa_filtered.tsv"),
@@ -257,7 +291,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
         both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
 
     } else if (file.exists(paste0("zotu_", db_one, "_phyloseq_taxa.tsv"))) {
-        seq_type            <- "ZOTU"
+        seq_type            <- paste0("ZOTU_", db_one)
         analysis_types      <- append(analysis_types, seq_type)
         seq_types           <- append(seq_types, seq_type)
         curr_taxa           <- read.table(paste0("zotu_", db_one, "_phyloseq_taxa.tsv"),
@@ -269,7 +303,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
     }
 
     if (file.exists(paste0("zotu_", db_one, "_lulucurated_phyloseq_taxa_filtered.tsv"))) {
-        seq_type            <- "ZOTU_LULUCURATED"
+        seq_type            <- paste0("ZOTU_LULUCURATED_", db_one)
         analysis_types      <- append(analysis_types, seq_type)
         curr_taxa           <- read.table(paste0("zotu_", db_one, "_lulucurated_phyloseq_taxa_filtered.tsv"),
                                         sep = "\t", header = TRUE)
@@ -279,7 +313,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
         both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
 
     } else if (file.exists(paste0("zotu_", db_one, "_lulucurated_phyloseq_taxa.tsv"))) {
-        seq_type            <- "ZOTU_LULUCURATED"
+        seq_type            <- paste0("ZOTU_LULUCURATED_", db_one)
         analysis_types      <- append(analysis_types, seq_type)
         curr_taxa           <- read.table(paste0("zotu_", db_one, "_lulucurated_phyloseq_taxa.tsv"),
                                         sep = "\t", header = TRUE)
@@ -296,7 +330,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
 
     if (db_two_exists) {
         if (file.exists(paste0("asv_", db_two, "_phyloseq_taxa_filtered.tsv"))) {
-            seq_type            <- "ASV_SECOND_DB"
+            seq_type            <- paste0("ASV_", db_two)
             analysis_types      <- append(analysis_types, seq_type)
             curr_taxa           <- read.table(paste0("asv_", db_two, "_phyloseq_taxa_filtered.tsv"),
                                             sep = "\t", header = TRUE)
@@ -306,7 +340,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
             both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
     
         } else if (file.exists(paste0("asv_", db_two, "_phyloseq_taxa.tsv"))) {
-            seq_type            <- "ASV_SECOND_DB"
+            seq_type            <- paste0("ASV_", db_two)
             analysis_types      <- append(analysis_types, seq_type)
             curr_taxa           <- read.table(paste0("asv_", db_two, "_phyloseq_taxa.tsv"),
                                             sep = "\t", header = TRUE)
@@ -317,7 +351,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
         }
     
         if (file.exists(paste0("asv_", db_two, "_lulucurated_phyloseq_taxa_filtered.tsv"))) {
-            seq_type            <- "ASV_LULUCURATED_SECOND_DB"
+            seq_type            <- paste0("ASV_LULUCURATED_", db_two)
             analysis_types      <- append(analysis_types, seq_type)
             curr_taxa           <- read.table(paste0("asv_", db_two, "_lulucurated_phyloseq_taxa_filtered.tsv"),
                                             sep = "\t", header = TRUE)
@@ -327,7 +361,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
             both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
     
         } else if (file.exists(paste0("asv_", db_two, "_lulucurated_phyloseq_taxa.tsv"))) {
-            seq_type            <- "ASV_LULUCURATED_SECOND_DB"
+            seq_type            <- paste0("ASV_LULUCURATED_", db_two)
             analysis_types      <- append(analysis_types, seq_type)
             curr_taxa           <- read.table(paste0("asv_", db_two, "_lulucurated_phyloseq_taxa.tsv"),
                                             sep = "\t", header = TRUE)
@@ -338,7 +372,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
         }
     
         if (file.exists(paste0("zotu_", db_two, "_phyloseq_taxa_filtered.tsv"))) {
-            seq_type            <- "ZOTU_SECOND_DB"
+            seq_type            <- paste0("ZOTU_", db_two)
             analysis_types      <- append(analysis_types, seq_type)
             curr_taxa           <- read.table(paste0("zotu_", db_two, "_phyloseq_taxa_filtered.tsv"),
                                             sep = "\t", header = TRUE)
@@ -348,7 +382,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
             both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
     
         } else if (file.exists(paste0("zotu_", db_two, "_phyloseq_taxa.tsv"))) {
-            seq_type            <- "ZOTU_SECOND_DB"
+            seq_type            <- paste0("ZOTU_", db_two)
             analysis_types      <- append(analysis_types, seq_type)
             curr_taxa           <- read.table(paste0("zotu_", db_two, "_phyloseq_taxa.tsv"),
                                             sep = "\t", header = TRUE)
@@ -359,7 +393,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
         }
     
         if (file.exists(paste0("zotu_", db_two, "_lulucurated_phyloseq_taxa_filtered.tsv"))) {
-            seq_type            <- "ZOTU_LULUCURATED_SECOND_DB"
+            seq_type            <- paste0("ZOTU_LULUCURATED_", db_two)
             analysis_types      <- append(analysis_types, seq_type)
             curr_taxa           <- read.table(paste0("zotu_", db_two, "_lulucurated_phyloseq_taxa_filtered.tsv"),
                                             sep = "\t", header = TRUE)
@@ -369,7 +403,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
             both_dfs[[seq_type]] <- list(data.frame(curr_taxa))
     
         } else if (file.exists(paste0("zotu_", db_two, "_lulucurated_phyloseq_taxa.tsv"))) {
-            seq_type            <- "ZOTU_LULUCURATED_SECOND_DB"
+            seq_type            <- paste0("ZOTU_LULUCURATED_", db_two)
             analysis_types      <- append(analysis_types, seq_type)
             curr_taxa           <- read.table(paste0("zotu_", db_two, "_lulucurated_phyloseq_taxa.tsv"),
                                             sep = "\t", header = TRUE)
@@ -481,6 +515,20 @@ if (any(grepl("track_reads.png", list.files()))) {
 ```
 ----------------------------------------------------------------------------------------------------------------------------\
 \
+
+`r if (bp_bool) "## Samples with odd BP length"`
+
+`r if (bp_bool) paste0("These samples have a median BP length that is 10 BP outside the median of all samples after primer trimming. BP median of all samples = ", len_median)`
+
+`r if (bp_bool) knitr::kable(bp_df, align="l")`
+
+`r if (bp_bool) "\\\n\\"`
+
+`r if (bp_good) "## Samples with odd BP length"`
+
+`r if (bp_good) paste0("All samples have a median BP length that is within 10 BP of the median of all samples after primer trimming. BP median of all samples = ", len_median)`
+
+`r if (bp_good) "\\\n\\"`
 
 `r if (missing_bool) "## Missing samples"`
 

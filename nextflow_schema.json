@@ -312,6 +312,10 @@
                     "type": "string",
                     "description": ""
                 },
+                "split_fasta": {
+                    "type": "boolean",
+                    "default": false
+                },
                 "lulu_min_match": {
                     "type": "integer",
                     "description": "",

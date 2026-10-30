@@ -30,8 +30,17 @@ process RENAME {
 
     # Moved assigned files to Assigned Dir
     for sample in \$samples; do
-        mv \$sample* Assigned
+        if [[ \${sample} == *"_forward"* ]]; then
+            sam=\$(echo \${sample} | sed 's/_forward//g')
+            zcat \${sam}_forward.1.fq.gz \${sam}_reverse.2.fq.gz > Assigned/\${sam}.R1.fq
+            zcat \${sam}_forward.2.fq.gz \${sam}_reverse.1.fq.gz > Assigned/\${sam}.R2.fq
+            rm \${sam}_forward*fq.gz
+            rm \${sam}_reverse*fq.gz
+        fi
     done
+
+    gzip Assigned/*
+    
 
     # Any leftover .fq.gz files are unknown samples
     if compgen -G "*.fq.gz"; then

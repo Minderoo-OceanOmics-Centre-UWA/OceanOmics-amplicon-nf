@@ -1,15 +1,11 @@
 process LCA_WITH_FISHBASE {
     tag "$prefix"
     label 'process_medium'
-    //label 'error_retry'
-    //container 'quay.io/biocontainers/python:3.9--1'
-    //container 'quay.io/biocontainers/pandas:2.2.1'
     container 'quay.io/microbiome-informatics/pandas-pyarrow:pd2.2.1_pya15.0.0'
 
     input:
     tuple val(prefix), path(table), path(blast_results)
     path(worms)
-    //path(taxdump)
 
     output:
     tuple val(prefix), path("*_lca_with_fishbase_output.tsv"), emit: lca_output
@@ -24,8 +20,6 @@ process LCA_WITH_FISHBASE {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${prefix}"
     """
-    mkdir cache
-    mv ${taxdump} cache
     calculateLCAWithFishbase_Claude_FAIReCompatible.py \\
         -f ${blast_results} \\
         -o ${prefix}_lca_with_fishbase_output.tsv \\

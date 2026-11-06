@@ -191,6 +191,11 @@
                     "minimum": 0,
                     "default": 6
                 },
+                "collapse_deterministic": {
+                    "type": "boolean",
+                    "description": "When merging paired reads, AdapterRemoval sets disagreeing overlap bases of equal quality to N instead of picking one at random, so repeated runs produce identical merged reads. Set to false for the previous random behaviour.",
+                    "default": true
+                },
                 "zotu_min_size": {
                     "type": "integer",
                     "description": "",

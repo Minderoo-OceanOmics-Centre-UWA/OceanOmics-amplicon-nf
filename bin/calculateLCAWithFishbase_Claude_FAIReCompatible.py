@@ -144,14 +144,14 @@ class NCBITaxdumpParser:
 
         taxdump_tar = self.cache_dir / "taxdump.tar.gz"
 
-        #if not taxdump_tar.exists():
-        #    self.logger.info("Downloading NCBI taxdump...")
-        #    try:
-        #        urlretrieve(Config.NCBI_TAXDUMP_URL, taxdump_tar)
-        #        self.logger.info(f"Downloaded taxdump to: {taxdump_tar}")
-        #    except Exception as e:
-        #        self.logger.error(f"Failed to download taxdump: {e}")
-        #        raise
+        if not taxdump_tar.exists():
+            self.logger.info("Downloading NCBI taxdump...")
+            try:
+                urlretrieve(Config.NCBI_TAXDUMP_URL, taxdump_tar)
+                self.logger.info(f"Downloaded taxdump to: {taxdump_tar}")
+            except Exception as e:
+                self.logger.error(f"Failed to download taxdump: {e}")
+                raise
 
         self.logger.info("Extracting taxdump...")
         taxdump_dir.mkdir(exist_ok=True)

@@ -186,8 +186,6 @@ include { ALT_POSTDEMUX_WORKFLOW                                 } from '../subw
 include { CUSTOM_DUMPSOFTWAREVERSIONS                            } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { FASTQC                                                 } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                                                } from '../modules/nf-core/multiqc/main'
-include { DOWNLOAD_AQUAMAPS                                      } from '../modules/local/custom/download_aquamaps/main'
-include { GET_AQUAMAP_PROBS                                      } from '../modules/local/custom/getaquamapprobs/main'
 include { AQUAMAPS                                               } from '../modules/local/custom/aquamaps/main'
 include { GET_CAAB_PROBS                                         } from '../modules/local/custom/getcaabprobs/main'
 include { PRIMER_CONTAM_STATS                                    } from '../modules/local/custom/primercontamstats/main'
@@ -814,21 +812,7 @@ workflow OCEANOMICS_AMPLICON {
                 file(params.aquamaps_db),
                 ch_input.first()
             )
-        } else {
-            //
-            // MODULE: Download aquamap nc files
-            //
-            DOWNLOAD_AQUAMAPS (
-                FLAG_OTUS_OUTSIDERANGE.out.phyloseq_object
-            )
-
-            //
-            // MODULE: Get the aquamap probabilities for each species in each ASV
-            //
-            GET_AQUAMAP_PROBS (
-                FLAG_OTUS_OUTSIDERANGE.out.phyloseq_object.join(DOWNLOAD_AQUAMAPS.out.nc_files)
-            )
-        }
+        } 
 
         ch_taxa = PHYLOSEQ.out.final_taxa
     } else {

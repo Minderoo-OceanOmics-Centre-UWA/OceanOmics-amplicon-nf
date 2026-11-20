@@ -1,13 +1,16 @@
 process CREATE_MERGED_TAXA_TABLE {
     tag ""
     label 'process_low'
+    //container 'adbennett/phyloseq_openxlsx_readxl:v1.0'
     container 'rocker/tidyverse:4.3.0'
 
     input:
     path faire_files
+    val dbone
+    val dbtwo
 
     output:
-    path "*.xlsx", emit: xlsx
+    path "*.csv", emit: csv
 
     when:
     task.ext.when == null || task.ext.when
@@ -15,20 +18,18 @@ process CREATE_MERGED_TAXA_TABLE {
     script:
     """
     #!/usr/bin/env Rscript
+    library(readxl)
+
     # CHECK IF THERE IS A FILE WITH curateddb AND A FILE WITH nt
-    if () {
+    if (length(list.files(pattern = "${dbone}")) > 0 & length(list.files(pattern = "${dbtwo}")) > 0) {
         # LOOP THROUGH ALL FILES THAT HAVE CURATEDDB
-        for () {
-            # EXTRACT ASSAY FROM FILE NAME AND ASV/ZOTU
-            # GET nt VERSION OF FILE
-            # DO MAIN CODE
-            # OUTPUT TAXA FILE
+        for (file1 in list.files(pattern = "${dbone}")) {
+            file2   <- gsub("${dbone}", "${dbtwo}", file1)
+            outfile <- gsub("${dbone}", "merged", file1)
+            outfile <- gsub("xlsx", "csv", outfile)
 
-            cur_path <- "16SFishD/07-faire/OcOm_2518_16SFishD_asv_curateddb_final_faire_metadata.xlsx"
-            nt_path  <- "16SFishD/07-faire/OcOm_2518_16SFishD_asv_nt_final_faire_metadata.xlsx"
-
-            cur_taxa <- read_excel(cur_path, sheet = "taxaFinal", skip = 2)
-            nt_taxa  <- read_excel(nt_path, sheet = "taxaFinal", skip = 2)
+            cur_taxa <- read_excel(file1, sheet = "taxaFinal", skip = 2)
+            nt_taxa  <- read_excel(file2, sheet = "taxaFinal", skip = 2)
 
             cur_pids        <- c()
             cur_qcovs       <- c()
@@ -112,24 +113,7 @@ process CREATE_MERGED_TAXA_TABLE {
             cur_taxa\$best_percent_match            <- greater_pids
             cur_taxa\$best_percent_query_cover      <- greater_qcovs
 
-            write_csv(cur_taxa, file = paste0("taxaFinal_", mode, "_", assay, ".csv"))
-
-            ogs   <- c()
-            names <- c()
-            for (asv in cur_taxa\$seq_id) {
-                if (! is.na(cur_taxa[cur_taxa\$seq_id == asv, "accession_id_ref_db"])) {
-                    if (cur_taxa[cur_taxa\$seq_id == asv, "accession_id_ref_db"] == "OG") {
-                        acc_id <- cur_taxa[cur_taxa\$seq_id == asv, "accession_id"][[1]]
-                        og     <- unlist(strsplit(acc_id, split = ".", fixed = TRUE))[1]
-                        name   <- cur_taxa[cur_taxa\$seq_id == asv, "scientificName"][[1]]
-                        if (! og %in% ogs & name != "dropped") {
-                            ogs   <- c(ogs, og)
-                            names <- c(names, name)
-                        }
-                    }
-                }
-            }
-            df = data.frame(ogs, names)
+            write.csv(cur_taxa, file = outfile)
         }
     }
     """

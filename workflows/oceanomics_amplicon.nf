@@ -186,6 +186,8 @@ include { ALT_POSTDEMUX_WORKFLOW                                 } from '../subw
 include { CUSTOM_DUMPSOFTWAREVERSIONS                            } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { FASTQC                                                 } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                                                } from '../modules/nf-core/multiqc/main'
+include { DOWNLOAD_AQUAMAPS                                      } from '../modules/local/custom/download_aquamaps/main'
+include { GET_AQUAMAP_PROBS                                      } from '../modules/local/custom/getaquamapprobs/main'
 include { AQUAMAPS                                               } from '../modules/local/custom/aquamaps/main'
 include { GET_CAAB_PROBS                                         } from '../modules/local/custom/getcaabprobs/main'
 include { PRIMER_CONTAM_STATS                                    } from '../modules/local/custom/primercontamstats/main'
@@ -194,7 +196,7 @@ include { INPUTFILE_INFO                                         } from '../modu
 include { CONCATFILE_INFO                                        } from '../modules/local/custom/concatfile_info/main'
 include { FILT_WITH_MASTERLIST                                   } from '../modules/local/custom/filt_with_masterlist/main'
 include { ADD_BACK_MASTERLIST                                    } from '../modules/local/custom/add_back_masterlist/main'
-//include { CREATE_MERGED_TAXA_TABLE                               } from '../modules/local/custom/create_merged_taxa_table/main'
+include { CREATE_MERGED_TAXA_TABLE                               } from '../modules/local/custom/create_merged_taxa_table/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -725,8 +727,7 @@ workflow OCEANOMICS_AMPLICON {
             //
             LCA_WITH_FISHBASE (
                 ch_lca_input,
-                ch_worms.first()//,
-                //file(params.taxdump)
+                ch_worms.first()
             )
             ch_versions = ch_versions.mix(LCA_WITH_FISHBASE.out.versions.first())
 
@@ -812,7 +813,21 @@ workflow OCEANOMICS_AMPLICON {
                 file(params.aquamaps_db),
                 ch_input.first()
             )
-        } 
+        } else {
+            //
+            // MODULE: Download aquamap nc files
+            //
+            DOWNLOAD_AQUAMAPS (
+                FLAG_OTUS_OUTSIDERANGE.out.phyloseq_object
+            )
+
+            //
+            // MODULE: Get the aquamap probabilities for each species in each ASV
+            //
+            GET_AQUAMAP_PROBS (
+                FLAG_OTUS_OUTSIDERANGE.out.phyloseq_object.join(DOWNLOAD_AQUAMAPS.out.nc_files)
+            )
+        }
 
         ch_taxa = PHYLOSEQ.out.final_taxa
     } else {
@@ -907,9 +922,12 @@ workflow OCEANOMICS_AMPLICON {
                 ADD_EXPERIMENTRUNMETADATA.out.xlsx.first()
             )
 
-//            CREATE_MERGED_TAXA_TABLE (
-//                CREATE_FAIRE_METADATA.out.xlsx.collect()
-//            )
+            CREATE_MERGED_TAXA_TABLE (
+                CREATE_FAIRE_METADATA.out.xlsx.collect(),
+                params.dbname,
+                params.db2name
+            )
+
         } else {
             ch_notaxa_otu = RENAME_OTURAW.out.otu_raw.join(REFORMAT_OTUFINAL.out.otu_final)
 

@@ -96,6 +96,7 @@ if (file.exists("final_stats.tsv") &&
 
         type_mean_df             <- data.frame(aggregate(num_seqs ~ sample_type, data = final_stats, FUN = function(x) mean(x, na.rm = TRUE)))
         colnames(type_mean_df)   <- c("sample_type", "read_count_mean")
+        type_mean_df$read_count_mean <- round(type_mean_df$read_count_mean, 2)
 
         type_5numsum_df          <- aggregate(num_seqs ~ sample_type, data = final_stats, FUN = function(x) fivenum(x, na.rm = TRUE))
         type_5numsum_df          <- data.frame(
@@ -129,12 +130,14 @@ if (file.exists("final_seqkit_stats.txt")) {
     sams_outside_sd <- c()
     lens_outside_sd <- c()
     for (file in trimmed_stats$file) {
-        if (trimmed_stats[trimmed_stats$file == file, "Q2"] >= len_median + 10 | trimmed_stats[trimmed_stats$file == file, "Q2"] <= len_median - 10) {
-            sam             <- sub("trimmed_trimmed_", "", file)
-            sam             <- sub(".R1.fq.gz", "", sam)
-            sam             <- sub(".R2.fq.gz", "", sam)
-            sams_outside_sd <- c(sams_outside_sd, sam)
-            lens_outside_sd <- c(lens_outside_sd, trimmed_stats[trimmed_stats$file == file, "Q2"])
+        if (trimmed_stats[trimmed_stats$file == file, "Q2"] != 0 & grepl("R1", file, fixed = TRUE)) {
+            if (trimmed_stats[trimmed_stats$file == file, "Q2"] >= len_median + 10 | trimmed_stats[trimmed_stats$file == file, "Q2"] <= len_median - 10) {
+                sam             <- sub("trimmed_trimmed_", "", file)
+                sam             <- sub(".R1.fq.gz", "", sam)
+                sam             <- sub(".R2.fq.gz", "", sam)
+                sams_outside_sd <- c(sams_outside_sd, sam)
+                lens_outside_sd <- c(lens_outside_sd, trimmed_stats[trimmed_stats$file == file, "Q2"])
+            }
         }
     }
     bp_df   <- data.frame(Sample = sams_outside_sd, Median_BP_Length = lens_outside_sd)
@@ -238,7 +241,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
     if (file.exists(paste0("asv_", db_one, "_phyloseq_taxa_filtered.tsv"))) {
         seq_type            <- paste0("ASV_", db_one)
         analysis_types      <- append(analysis_types, seq_type)
-        seq_types           <- append(seq_types, seq_type)
+        seq_types           <- append(seq_types, "ASV")
         curr_taxa           <- read.table(paste0("asv_", db_one, "_phyloseq_taxa_filtered.tsv"),
                                         sep = "\t", header = TRUE)
 
@@ -249,7 +252,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
     } else if (file.exists(paste0("asv_", db_one, "_phyloseq_taxa.tsv"))) {
         seq_type            <- paste0("ASV_", db_one)
         analysis_types      <- append(analysis_types, seq_type)
-        seq_types           <- append(seq_types, seq_type)
+        seq_types           <- append(seq_types, "ASV")
         curr_taxa           <- read.table(paste0("asv_", db_one, "_phyloseq_taxa.tsv"),
                                         sep = "\t", header = TRUE)
 
@@ -282,7 +285,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
     if (file.exists(paste0("zotu_", db_one, "_phyloseq_taxa_filtered.tsv"))) {
         seq_type            <- paste0("ZOTU_", db_one)
         analysis_types      <- append(analysis_types, seq_type)
-        seq_types           <- append(seq_types, seq_type)
+        seq_types           <- append(seq_types, "ZOTU")
         curr_taxa           <- read.table(paste0("zotu_", db_one, "_phyloseq_taxa_filtered.tsv"),
                                         sep = "\t", header = TRUE)
 
@@ -293,7 +296,7 @@ if (any(grepl("phyloseq_taxa", list.files()))) {
     } else if (file.exists(paste0("zotu_", db_one, "_phyloseq_taxa.tsv"))) {
         seq_type            <- paste0("ZOTU_", db_one)
         analysis_types      <- append(analysis_types, seq_type)
-        seq_types           <- append(seq_types, seq_type)
+        seq_types           <- append(seq_types, "ZOTU")
         curr_taxa           <- read.table(paste0("zotu_", db_one, "_phyloseq_taxa.tsv"),
                                         sep = "\t", header = TRUE)
 
